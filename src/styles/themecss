@@ -1,0 +1,250 @@
+
+
+/* ── Shared tokens (not theme-dependent) ── */
+:root {
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --font-body:    'Outfit', sans-serif;
+
+  /* Border radius */
+  --r-sm:  7px;
+  --r-md:  11px;
+  --r-lg:  13px;
+  --r-xl:  18px;
+  --r-full: 9999px;
+
+  /* Sidebar width */
+  --sb-w: 200px;
+
+  /* Transitions */
+  --ease: 0.2s ease;
+  --ease-slow: 0.4s ease;
+
+  /* Shadows */
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.18);
+  --shadow-lg:   0 24px 64px rgba(0,0,0,0.35);
+}
+
+
+/* ============================================================
+   DARK THEME  (default — matches existing pages)
+   ============================================================ */
+[data-theme="dark"], :root {
+
+  /* ── Backgrounds ── */
+  --bg:       #030c1a;          /* page background */
+  --bg2:      #050f22;          /* card / panel background */
+  --bg3:      rgba(255,255,255,0.025); /* subtle surface tint */
+  --bg-sb:    rgba(2,7,18,0.98);       /* sidebar */
+  --bg-input: rgba(255,255,255,0.04);  /* input fields */
+  --bg-hover: rgba(255,255,255,0.05);  /* hover state */
+
+  /* ── Borders ── */
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --border3:  rgba(255,255,255,0.18);
+
+  /* ── Text ── */
+  --text:     rgba(255,255,255,0.88);  /* primary text */
+  --muted:    rgba(255,255,255,0.42);  /* secondary text */
+  --faint:    rgba(255,255,255,0.18);  /* placeholder / labels */
+
+  /* ── Teal (primary brand accent) ── */
+  --teal:     #2dd4bf;
+  --teal-dk:  #0d9488;
+  --teal-d:   rgba(20,184,166,0.12);
+  --teal-b:   rgba(20,184,166,0.25);
+
+  /* ── Indigo (predicted position / ML outputs) ── */
+  --indigo:   #818cf8;
+  --indigo-dk:#6366f1;
+  --indigo-d: rgba(99,102,241,0.10);
+  --indigo-b: rgba(99,102,241,0.25);
+
+  /* ── Amber (warnings / medium priority) ── */
+  --amber:    #fbbf24;
+  --amber-dk: #f59e0b;
+  --amber-d:  rgba(245,158,11,0.10);
+  --amber-b:  rgba(245,158,11,0.22);
+
+  /* ── Red (errors / critical) ── */
+  --red:      #f87171;
+  --red-dk:   #ef4444;
+  --red-d:    rgba(239,68,68,0.08);
+  --red-b:    rgba(239,68,68,0.20);
+
+  /* ── Green (success / passed) ── */
+  --green:    #34d399;
+  --green-dk: #10b981;
+  --green-d:  rgba(52,211,153,0.08);
+  --green-b:  rgba(52,211,153,0.20);
+
+  /* ── Violet (content category tag) ── */
+  --violet:   #c084fc;
+  --violet-d: rgba(168,85,247,0.10);
+  --violet-b: rgba(168,85,247,0.22);
+
+  /* ── Logo gradient ── */
+  --logo-grad-start: #0d9488;
+  --logo-grad-end:   #0891b2;
+
+  /* ── CTA button ── */
+  --cta-start: #0d9488;
+  --cta-end:   #0f766e;
+  --cta-shadow: rgba(13,148,136,0.30);
+
+  /* ── Auth button (sign in) ── */
+  --auth-start: #2b5ce6;
+  --auth-end:   #3b7aff;
+  --auth-shadow: rgba(43,92,230,0.35);
+
+  /* ── Scrollbar ── */
+  --scrollbar-thumb: rgba(255,255,255,0.10);
+
+  /* ── Chart / graph ── */
+  --chart-grid:    rgba(255,255,255,0.05);
+  --chart-tooltip: rgba(5,12,28,0.97);
+  --chart-you:     #2dd4bf;
+  --chart-comp:    rgba(99,102,241,0.35);
+  --chart-sel:     #818cf8;
+  --chart-avg:     rgba(255,255,255,0.20);
+
+  /* ── Background grid dots ── */
+  --grid-dot: rgba(20,184,166,0.035);
+}
+
+
+/* ============================================================
+   LIGHT THEME
+   ============================================================ */
+[data-theme="light"] {
+
+  /* ── Backgrounds ── */
+  --bg:       #f0f4f8;
+  --bg2:      #ffffff;
+  --bg3:      rgba(0,0,0,0.03);
+  --bg-sb:    #ffffff;
+  --bg-input: rgba(0,0,0,0.03);
+  --bg-hover: rgba(0,0,0,0.04);
+
+  /* ── Borders ── */
+  --border:   rgba(0,0,0,0.08);
+  --border2:  rgba(0,0,0,0.14);
+  --border3:  rgba(0,0,0,0.20);
+
+  /* ── Text ── */
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --faint:    #94a3b8;
+
+  /* ── Teal ── */
+  --teal:     #0d9488;
+  --teal-dk:  #0f766e;
+  --teal-d:   rgba(13,148,136,0.10);
+  --teal-b:   rgba(13,148,136,0.25);
+
+  /* ── Indigo ── */
+  --indigo:   #4f46e5;
+  --indigo-dk:#4338ca;
+  --indigo-d: rgba(79,70,229,0.08);
+  --indigo-b: rgba(79,70,229,0.22);
+
+  /* ── Amber ── */
+  --amber:    #b45309;
+  --amber-dk: #92400e;
+  --amber-d:  rgba(180,83,9,0.08);
+  --amber-b:  rgba(180,83,9,0.20);
+
+  /* ── Red ── */
+  --red:      #dc2626;
+  --red-dk:   #b91c1c;
+  --red-d:    rgba(220,38,38,0.07);
+  --red-b:    rgba(220,38,38,0.18);
+
+  /* ── Green ── */
+  --green:    #047857;
+  --green-dk: #065f46;
+  --green-d:  rgba(4,120,87,0.08);
+  --green-b:  rgba(4,120,87,0.20);
+
+  /* ── Violet ── */
+  --violet:   #7c3aed;
+  --violet-d: rgba(124,58,237,0.08);
+  --violet-b: rgba(124,58,237,0.20);
+
+  /* ── Logo gradient (unchanged — always teal/blue) ── */
+  --logo-grad-start: #0d9488;
+  --logo-grad-end:   #0891b2;
+
+  /* ── CTA button ── */
+  --cta-start: #0d9488;
+  --cta-end:   #0f766e;
+  --cta-shadow: rgba(13,148,136,0.22);
+
+  /* ── Auth button ── */
+  --auth-start: #2b5ce6;
+  --auth-end:   #3b7aff;
+  --auth-shadow: rgba(43,92,230,0.25);
+
+  /* ── Scrollbar ── */
+  --scrollbar-thumb: rgba(0,0,0,0.12);
+
+  /* ── Chart ── */
+  --chart-grid:    rgba(0,0,0,0.06);
+  --chart-tooltip: rgba(255,255,255,0.97);
+  --chart-you:     #0d9488;
+  --chart-comp:    rgba(79,70,229,0.30);
+  --chart-sel:     #4f46e5;
+  --chart-avg:     rgba(0,0,0,0.18);
+
+  /* ── Background grid dots ── */
+  --grid-dot: rgba(13,148,136,0.06);
+}
+
+
+/* ============================================================
+   GLOBAL BASE STYLES
+   Apply these once — they react to the theme automatically
+   ============================================================ */
+
+/* Smooth theme transitions */
+*, *::before, *::after {
+  transition:
+    background-color var(--ease-slow),
+    border-color     var(--ease-slow),
+    color            var(--ease-slow),
+    box-shadow       var(--ease-slow);
+}
+
+/* Exception: don't transition things that shouldn't animate */
+svg, img, button, input, textarea {
+  transition:
+    background-color var(--ease-slow),
+    border-color     var(--ease-slow),
+    color            var(--ease-slow),
+    opacity          var(--ease),
+    transform        var(--ease);
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+/* Background grid utility class */
+.bg-grid {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-dot) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-dot) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

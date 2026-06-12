@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "SEOInsight — Page Analyser",
+  "short_name": "SEOInsight",
+  "description": "Instantly analyse any page's SEO health, keyword signals, and competitor gaps — right from your browser sidebar.",
+  "version": "1.0.0",
+
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "SEOInsight — Open Sidebar"
+  },
+
+  "side_panel": {
+    "default_path": "extension.html"
+  },
+
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "sidePanel"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
