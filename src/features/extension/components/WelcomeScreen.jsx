@@ -9,13 +9,9 @@ const FEATURES = [
   { icon: '📊', label: 'Competitors',     sub: 'vs. top 10 results'       },
 ]
 
-export default function WelcomeScreen({ url = 'example.com', onAudit, onSignUp }) {
+export default function WelcomeScreen({ url = 'example.com', keyword = '', onKeywordChange, offlineCount = 0, onlineCount = 0, onAudit, onSignUp }) {
   return (
     <div className="welcome-wrap">
-
-      {/* Ambient background orbs */}
-      <div className="w-orb w-orb1" aria-hidden="true" />
-      <div className="w-orb w-orb2" aria-hidden="true" />
 
       {/* ── Brand bar ── */}
       <div className="w-brand">
@@ -24,39 +20,57 @@ export default function WelcomeScreen({ url = 'example.com', onAudit, onSignUp }
             <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
           </svg>
         </div>
-        <span className="w-brand-name" style={{ fontFamily: "'Syne',sans-serif" }}>
+        <span className="w-brand-name" style={{ fontFamily: "'Outfit',sans-serif" }}>
           SEO<span>Insight</span>
         </span>
         <span className="w-brand-badge">FREE</span>
       </div>
 
-      {/* ── Hero ring animation ── */}
-      <div className="w-hero">
-        <div className="w-ring w-ring-3" aria-hidden="true" />
-        <div className="w-ring w-ring-2" aria-hidden="true" />
-        <div className="w-ring w-ring-1" aria-hidden="true" />
-        <div className="w-hero-core">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
-            stroke="var(--teal)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="M21 21l-4.35-4.35"/>
-            <path d="M11 8v6M8 11h6"/>
-          </svg>
-        </div>
-      </div>
-
       {/* ── Headline ── */}
-      <h1 className="w-headline" style={{ fontFamily: "'Syne',sans-serif" }}>
-        Instant SEO Audit<br/><span className="w-headline-accent">for Any Page</span>
+      <h1 className="w-headline" style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 700 }}>
+        SEO Page Audit
       </h1>
       <p className="w-sub">
-        Scores, keyword gaps, technical issues & competitor insights — in seconds.
+        Analyse your page's SEO score, keyword targeting, and technical health.
       </p>
 
       {/* ── Current URL chip ── */}
       <div className="w-url-chip">
         <div className="https-dot" />
         <span className="w-url-txt">{url}</span>
+      </div>
+
+      {/* ── Target Keyword Input ── */}
+      <div className="w-keyword-input-container">
+        <div className="w-keyword-label">Target Keyword</div>
+        <input
+          type="text"
+          className="w-keyword-input"
+          placeholder="e.g. buy laptops, organic tea"
+          value={keyword}
+          onChange={(e) => onKeywordChange(e.target.value)}
+        />
+        <div className="w-keyword-hint">Calculates keyword density and checks presence in title, desc, and H1 tags.</div>
+      </div>
+
+      {/* ── Scan Usage Badges ── */}
+      <div className="w-usage-badges" style={{ display: 'flex', gap: '8px', margin: '-8px auto 24px', justifyContent: 'center', width: '100%' }}>
+        <div className="w-usage-badge" style={{
+          padding: '4px 10px', background: 'rgba(255,255,255,.02)',
+          border: '1px solid var(--b)', borderRadius: '12px',
+          fontSize: '9.5px', color: offlineCount >= 5 ? 'var(--red)' : 'var(--muted)',
+          fontFamily: "'DM Mono', monospace"
+        }}>
+          Offline: {Math.max(0, 5 - offlineCount)}/5 left
+        </div>
+        <div className="w-usage-badge" style={{
+          padding: '4px 10px', background: 'rgba(255,255,255,.02)',
+          border: '1px solid var(--b)', borderRadius: '12px',
+          fontSize: '9.5px', color: onlineCount >= 3 ? 'var(--red)' : 'var(--muted)',
+          fontFamily: "'DM Mono', monospace"
+        }}>
+          Online: {Math.max(0, 3 - onlineCount)}/3 left
+        </div>
       </div>
 
       {/* ── Feature grid ── */}
@@ -74,7 +88,7 @@ export default function WelcomeScreen({ url = 'example.com', onAudit, onSignUp }
 
       {/* ── CTAs ── */}
       <div className="w-ctas">
-        <button id="btn-perform-audit" className="cta-primary" onClick={onAudit}>
+        <button id="btn-perform-audit" className="cta-primary" onClick={onAudit} disabled={!keyword.trim()}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
             <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
           </svg>
