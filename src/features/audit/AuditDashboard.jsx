@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getAudit } from './services/auditService.js'
 import { useAudit } from '../../store/auditSlice.js'
+import { printSeoReport } from '../reports/reportGenerator.js'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -110,18 +111,24 @@ const css = `
 .ad-impact-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--faint,rgba(255,255,255,.18));text-transform:uppercase;margin-bottom:3px;}
 
 /* CTA */
-.ad-cta-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;animation:fadeUp .5s .25s ease both;}
+.ad-cta-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;animation:fadeUp .5s .25s ease both;}
 .ad-cta-card{background:linear-gradient(135deg,rgba(13,148,136,.1),rgba(15,118,110,.04));border:1px solid rgba(13,148,136,.25);border-radius:13px;padding:20px 22px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;}
 .ad-cta-card.indigo{background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(79,70,229,.04));border-color:rgba(99,102,241,.25);}
+.ad-cta-card.rose{background:linear-gradient(135deg,rgba(244,63,94,.08),rgba(190,18,60,.04));border-color:rgba(244,63,94,.25);}
 .ad-cta-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
 .ad-cta-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
-.ad-cta-card:not(.indigo) .ad-cta-icon{background:rgba(13,148,136,.18);border:1px solid rgba(13,148,136,.3);}
+.ad-cta-card:not(.indigo):not(.rose) .ad-cta-icon{background:rgba(13,148,136,.18);border:1px solid rgba(13,148,136,.3);}
 .ad-cta-card.indigo .ad-cta-icon{background:rgba(99,102,241,.18);border:1px solid rgba(99,102,241,.3);}
+.ad-cta-card.rose .ad-cta-icon{background:rgba(244,63,94,.14);border:1px solid rgba(244,63,94,.3);}
 .ad-cta-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;}
 .ad-cta-sub{font-family:'Outfit',sans-serif;font-size:12px;color:var(--muted,rgba(255,255,255,.38));line-height:1.5;}
 .ad-cta-arrow{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;}
-.ad-cta-card:not(.indigo) .ad-cta-arrow{color:var(--teal,#2dd4bf);}
+.ad-cta-card:not(.indigo):not(.rose) .ad-cta-arrow{color:var(--teal,#2dd4bf);}
 .ad-cta-card.indigo .ad-cta-arrow{color:var(--indigo,#818cf8);}
+.ad-cta-card.rose .ad-cta-arrow{color:#fb7185;}
+/* download btn in header */
+.ad-dl-btn{display:inline-flex;align-items:center;gap:7px;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);color:#fb7185;border-radius:8px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.ad-dl-btn:hover{background:rgba(244,63,94,.18);border-color:rgba(244,63,94,.4);transform:translateY(-1px);}
 
 @media(max-width:900px){.ad-sec-row{grid-template-columns:repeat(3,1fr);}.ad-pgrid{grid-template-columns:1fr;}}
 @media(max-width:600px){.ad-hero-row{grid-template-columns:1fr;}.ad-sec-row{grid-template-columns:1fr 1fr;}.ad-cta-row{grid-template-columns:1fr;}.ad{padding:20px 16px 40px;}}
@@ -177,6 +184,24 @@ export default function AuditDashboard() {
   const qualityLevel = a.quality === 'HIGH' ? 'high' : a.quality === 'MEDIUM' ? 'med' : 'low'
   const rankPct = Math.max(5, Math.round(((100 - a.predictedRank) / 100) * 100))
 
+  // Adapts the current flat audit shape for the report generator.
+  // When Phase 5 refactors pages to the nested backend shape, update these
+  // field paths (e.g. a.on_page.title, a.on_page.word_count, etc.).
+  const handleDownloadReport = () => {
+    const reportData = {
+      url:            a.url,
+      title:          a.pageTitle,
+      metaDesc:       a.metaDescription,
+      wordCount:      a.wordCount,
+      isHttps:        a.isHttps ?? true,
+      viewport:       a.viewport ?? true,
+      canonical:      a.canonical || '',
+      hasSchema:      a.hasSchema ?? false,
+      keyword_density: a.keywordDensity,
+    }
+    printSeoReport(reportData, a.seoScore ?? 0, a.keyword)
+  }
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -184,14 +209,16 @@ export default function AuditDashboard() {
         {/* ── Header ── */}
         <div className="ad-hdr">
           <div className="ad-eyebrow">
-            <div style={{ width:6,height:6,borderRadius:'50%',background:'var(--teal,#2dd4bf)' }} />
             <span className="ad-eyebrow-txt">AI Analysis Complete</span>
           </div>
           <h1 className="ad-title">SEO Analysis — <em>{a.keyword}</em></h1>
           <div className="ad-meta">
             <div className="ad-chip"><span className="ad-chip-lbl">⌕ <b>{a.keyword}</b></span></div>
             <div className="ad-chip"><span className="ad-chip-lbl">🌐 <b>{a.url}</b></span></div>
-            <div className="ad-live"><div className="ad-ldot"/><span className="ad-ltxt">Report Ready</span></div>
+            <button className="ad-dl-btn" onClick={handleDownloadReport} id="download-report-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Report
+            </button>
           </div>
         </div>
 
@@ -445,6 +472,21 @@ export default function AuditDashboard() {
             <div className="ad-cta-title">Open Optimization Roadmap</div>
             <div className="ad-cta-sub">Your {a.roadmapTasks?.length || 0} prioritised tasks with estimated position gains. Tick them off as you go.</div>
             <div className="ad-cta-arrow">View Roadmap →</div>
+          </div>
+
+          {/* Download Report CTA — uses current flat shape, update field paths in Phase 5 */}
+          <div className="ad-cta-card rose" onClick={handleDownloadReport} id="cta-download-report">
+            <div className="ad-cta-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb7185" strokeWidth="1.8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 18 15 15"/>
+              </svg>
+            </div>
+            <div className="ad-cta-title">Download PDF Report</div>
+            <div className="ad-cta-sub">Export a print-ready SEO audit report with all checks, issues, and recommendations.</div>
+            <div className="ad-cta-arrow">Download Report →</div>
           </div>
         </div>
       </div>

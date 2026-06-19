@@ -133,11 +133,7 @@ export default function DashboardPage() {
       <div className="dp">
         {/* ── Hero ── */}
         <div className="dp-hero">
-          <div className="dp-status-pill">
-            <span className="dp-pdot" />
-            <span className="dp-status-lbl">ML pipeline ready</span>
-          </div>
-          <h1 className="dp-h1">{greet} 👋<br />Start Your AI SEO Audit</h1>
+          <h1 className="dp-h1">{greet}<br />Start Your AI SEO Audit</h1>
           <p className="dp-sub">
             Enter your webpage URL and target keyword. Our machine learning engine
             will analyse the top 10 SERP competitors and generate your personalised report.
