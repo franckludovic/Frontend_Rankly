@@ -1,5 +1,5 @@
 /**
- * content.js — injected into every page the user visits.
+ * content.js- injected into every page the user visits.
  *
  * Responsibility: read the current page's SEO signals and send them
  * to the extension popup via chrome.runtime.sendMessage.
@@ -10,8 +10,8 @@
 
 ;(function () {
   // Guard: don't run more than once per page
-  if (window.__seoInsightInjected) return
-  window.__seoInsightInjected = true
+  if (window.__RanklyInjected) return
+  window.__RanklyInjected = true
 
   function scrapePageData(keyword) {
     const title       = document.title || ''

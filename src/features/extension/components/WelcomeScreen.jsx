@@ -1,12 +1,14 @@
 /**
- * WelcomeScreen — first thing the user sees when they open the extension.
+ * WelcomeScreen- first thing the user sees when they open the extension.
  * Shows branding, the current page URL, feature grid, and CTAs.
  */
+import { Zap, ArrowRight, Search, Shield, BarChart2 } from 'lucide-react'
+
 const FEATURES = [
-  { icon: '⚡', label: 'SEO Score',       sub: 'Instant 0–100 rating'    },
-  { icon: '🔍', label: 'Keyword Gaps',    sub: 'Missing keyword signals'  },
-  { icon: '🛡️', label: 'Tech Health',    sub: 'Tags, schema, mobile'     },
-  { icon: '📊', label: 'Competitors',     sub: 'vs. top 10 results'       },
+  { icon: <Zap size={14} strokeWidth={1.8} />, label: 'SEO Score',       sub: 'Instant 0–100 rating'    },
+  { icon: <Search size={14} strokeWidth={1.8} />, label: 'Keyword Gaps', sub: 'Missing keyword signals'  },
+  { icon: <Shield size={14} strokeWidth={1.8} />, label: 'Tech Health',  sub: 'Tags, schema, mobile'     },
+  { icon: <BarChart2 size={14} strokeWidth={1.8} />, label: 'Competitors', sub: 'vs. top 10 results'     },
 ]
 
 export default function WelcomeScreen({ url = 'example.com', keyword = '', onKeywordChange, offlineCount = 0, onlineCount = 0, onAudit, onSignUp }) {
@@ -16,12 +18,10 @@ export default function WelcomeScreen({ url = 'example.com', keyword = '', onKey
       {/* ── Brand bar ── */}
       <div className="w-brand">
         <div className="w-brand-icon">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
-            <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
-          </svg>
+          <Zap size={11} fill="white" strokeWidth={0} />
         </div>
         <span className="w-brand-name" style={{ fontFamily: "'Outfit',sans-serif" }}>
-          SEO<span>Insight</span>
+          Rank<span>ly</span>
         </span>
         <span className="w-brand-badge">FREE</span>
       </div>
@@ -89,13 +89,9 @@ export default function WelcomeScreen({ url = 'example.com', keyword = '', onKey
       {/* ── CTAs ── */}
       <div className="w-ctas">
         <button id="btn-perform-audit" className="cta-primary" onClick={onAudit} disabled={!keyword.trim()}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
-            <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
-          </svg>
+          <Zap size={13} fill="white" strokeWidth={0} />
           Perform Audit
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <ArrowRight size={11} strokeWidth={2.5} color="white" />
         </button>
         <button id="btn-sign-up" className="cta-secondary" onClick={onSignUp}>
           Sign Up for Full Reports

@@ -1,4 +1,5 @@
 import ScoreRing from './ScoreRing'
+import { Check, X, AlertTriangle, Lock } from 'lucide-react'
 
 export default function ResultsView({ score = 68, keyword = 'buy laptops', auditMode = 'cloud', scrapedData }) {
   const isHttps = scrapedData?.isHttps ?? true
@@ -83,7 +84,9 @@ export default function ResultsView({ score = 68, keyword = 'buy laptops', audit
     score >= 70 ? 'grade-high' : score >= 45 ? 'grade-medium' : 'grade-low'
 
   function icon(cls) {
-    return cls === 'pass' ? '✓' : cls === 'fail' ? '✗' : '⚠'
+    if (cls === 'pass') return <Check size={12} strokeWidth={2} />
+    if (cls === 'fail') return <X size={12} strokeWidth={2} />
+    return <AlertTriangle size={12} strokeWidth={2} />
   }
 
   function iconColor(cls) {
@@ -106,8 +109,8 @@ export default function ResultsView({ score = 68, keyword = 'buy laptops', audit
 
           <div className="score-headline">
             {passCount === 6 
-              ? 'Excellent technical SEO — all signals verified successfully.' 
-              : `Needs work — ${6 - passCount} issues found on this page.`}
+              ? 'Excellent technical SEO- all signals verified successfully.' 
+              : `Needs work- ${6 - passCount} issues found on this page.`}
           </div>
           <div className="score-sub">Target: '{keyword}'</div>
         </div>
@@ -153,7 +156,7 @@ export default function ResultsView({ score = 68, keyword = 'buy laptops', audit
                     background: 'rgba(3,12,26,.4)', backdropFilter: 'blur(1px)', zIndex: 2
                   }}>
                     <span style={{ fontSize: '9.5px', color: 'var(--muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '.4px' }}>
-                      🔒 Sign up to unlock
+                      <Lock size={12} strokeWidth={1.8} /> Sign up to unlock
                     </span>
                   </div>
                 )}

@@ -22,7 +22,7 @@ export default function AuthPage() {
       {/* ── Topbar ── */}
       <nav className="auth-nav">
         <div className="auth-nav-logo">
-          SEO<span>Insight</span>
+          Rank<span>ly</span>
         </div>
       </nav>
 
@@ -83,7 +83,7 @@ export default function AuthPage() {
       {/* Footer */}
       <footer className="auth-footer">
         <div className="auth-footer-txt">
-          © 2026 SEO Insight Engine · Built for developers · VITE_USE_MOCK_API={import.meta.env.VITE_USE_MOCK_API ?? 'true'}
+          © 2026 Rankly · Built for developers · VITE_USE_MOCK_API={import.meta.env.VITE_USE_MOCK_API ?? 'true'}
         </div>
       </footer>
     </div>

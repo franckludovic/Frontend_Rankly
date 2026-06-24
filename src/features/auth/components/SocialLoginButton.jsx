@@ -1,4 +1,5 @@
 import React from 'react'
+import { supabase } from '../../../lib/supabase.js'
 
 const css = `
 .social-oauth-container {
@@ -59,13 +60,25 @@ export default function SocialLoginButton({ provider, onClick, label, ...props }
   const isGoogle = provider?.toLowerCase() === 'google'
   const isGithub = provider?.toLowerCase() === 'github'
 
+  const handleOAuth = async () => {
+    try {
+      const redirectTo = window.location.origin + '/dashboard'
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: isGoogle ? 'google' : 'github',
+        options: { redirectTo }
+      })
+      if (error) throw error
+    } catch (err) {
+      console.error('OAuth error:', err.message)
+    }
+  }
+
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: css }} />
       <button
         type="button"
         className={`social-oauth-btn ${isGoogle ? 'google' : 'github'}`}
-        onClick={onClick}
+        onClick={onClick || handleOAuth}
         {...props}
       >
         {isGoogle ? <GoogleIcon /> : <GithubIcon />}

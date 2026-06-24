@@ -423,7 +423,7 @@ export default function AuthPage() {
                   <div className="or-line"/>
                 </div>
 
-                {/* Name row — signup only */}
+                {/* Name row- signup only */}
                 {isSignup && (
                   <div className="name-row">
                     <div className="field">
@@ -481,7 +481,7 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                {/* Terms — signup only */}
+                {/* Terms- signup only */}
                 {isSignup && (
                   <div className="terms-row">
                     <button className={`terms-box${agreed?" on":""}`}

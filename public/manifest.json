@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "SEOInsight — Page Analyser",
-  "short_name": "SEOInsight",
-  "description": "Instantly analyse any page's SEO health, keyword signals, and competitor gaps — right from your browser sidebar.",
+  "name": "Rankly- Page Analyser",
+  "short_name": "Rankly",
+  "description": "Instantly analyse any page's SEO health, keyword signals, and competitor gaps- right from your browser sidebar.",
   "version": "1.0.0",
 
   "icons": {
@@ -17,7 +17,7 @@
       "48":  "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "SEOInsight — Open Sidebar"
+    "default_title": "Rankly- Open Sidebar"
   },
 
   "side_panel": {

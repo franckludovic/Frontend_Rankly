@@ -1,9 +1,10 @@
 /**
  * ThemeToggle.jsx
- * Drop this anywhere in your UI — sidebar, navbar, settings page.
+ * Drop this anywhere in your UI- sidebar, navbar, settings page.
  * Uses the useTheme() hook you already have.
  */
 import { useState, useEffect } from "react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme, getPreferredTheme } from "./useTheme";
 
 const css = `
@@ -54,7 +55,7 @@ const css = `
   color: var(--muted);
   flex: 1;
 }
-.tt-icon { font-size: 14px; flex-shrink: 0; }
+.tt-icon { display: flex; align-items: center; flex-shrink: 0; }
 `;
 
 export default function ThemeToggle() {
@@ -77,7 +78,7 @@ export default function ThemeToggle() {
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <button className="theme-toggle" onClick={toggle}>
-        <span className="tt-icon">{isDark ? "🌙" : "☀️"}</span>
+        <span className="tt-icon">{isDark ? <Moon size={14} strokeWidth={1.8} /> : <Sun size={14} strokeWidth={1.8} />}</span>
         <span className="tt-label">{isDark ? "Dark mode" : "Light mode"}</span>
         <div className={`tt-track${isDark ? " on" : ""}`}>
           <div className="tt-thumb" />

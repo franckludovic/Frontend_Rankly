@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { generateAudit } from './services/dashboardService.js'
 import { getHistory, deleteAudit } from '../history/services/historyService.js'
 import { useAuth } from '../../store/authSlice.js'
+import CannibalizationWidget from './components/CannibalizationWidget.jsx'
+import LinkingWidget from './components/LinkingWidget.jsx'
+import MonitorWidget from './components/MonitorWidget.jsx'
+import { X, Globe, ArrowRight, Settings, Zap } from 'lucide-react'
+import UpgradeModal from '../../shared/components/UpgradeModal.jsx'
 
 /* ─── inline styles ─── */
 const css = `
@@ -88,8 +93,10 @@ export default function DashboardPage() {
   const { user }       = useAuth()
   const [url, setUrl]  = useState('')
   const [kw,  setKw]   = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState('')
+  const [loading,       setLoading]       = useState(false)
+  const [error,         setError]         = useState('')
+  const [showUpgrade,   setShowUpgrade]   = useState(false)
+  const [upgradeLimit,  setUpgradeLimit]  = useState(3)
   const [history, setHistory] = useState([])
   const [histLoading, setHistLoading] = useState(true)
 
@@ -108,7 +115,12 @@ export default function DashboardPage() {
       const audit = await generateAudit({ url: url.trim(), keyword: kw.trim() })
       navigate(`/audit/${audit.id}`)
     } catch (e) {
-      setError(e.message || 'Failed to generate audit. Please try again.')
+      if (e.isQuotaError) {
+        setUpgradeLimit(e.limit || 3)
+        setShowUpgrade(true)
+      } else {
+        setError(e.message || 'Failed to generate audit. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -129,6 +141,9 @@ export default function DashboardPage() {
 
   return (
     <>
+      {showUpgrade && (
+        <UpgradeModal limit={upgradeLimit} onClose={() => setShowUpgrade(false)} />
+      )}
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="dp">
         {/* ── Hero ── */}
@@ -175,8 +190,8 @@ export default function DashboardPage() {
             disabled={loading || !url.trim() || !kw.trim()}
           >
             {loading
-              ? <><span className="spin">⚙</span> Analysing competitors…</>
-              : <>Generate AI Analysis <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg></>
+              ? <><Settings size={15} className="spin" /> Analysing competitors…</>
+              : <>Generate AI Analysis <Zap size={15} fill="currentColor" strokeWidth={0} /></>
             }
           </button>
           <p className="dp-hint">
@@ -184,14 +199,27 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* ── Keyword Cannibalization ── */}
+        <div style={{ marginBottom: '20px', animation: 'fadeUp .5s .15s ease both' }}>
+          <CannibalizationWidget />
+        </div>
+
+        {/* ── Internal Linking Opportunities ── */}
+        <div style={{ marginBottom: '20px', animation: 'fadeUp .5s .2s ease both' }}>
+          <LinkingWidget audits={history} />
+        </div>
+
+        {/* ── Competitor Monitor ── */}
+        <MonitorWidget />
+
         {/* ── Recent Audits ── */}
         <div className="dp-section-hdr">
           <div className="dp-sh-left">
             <div className="dp-sh-bar" />
             <h2 className="dp-sh-title">Recent Audits</h2>
           </div>
-          <button className="dp-view-all" onClick={() => navigate('/history')}>
-            View All History →
+          <button className="dp-view-all" style={{display:'inline-flex',alignItems:'center',gap:5}} onClick={() => navigate('/history')}>
+            View All History <ArrowRight size={12} strokeWidth={2} />
           </button>
         </div>
 
@@ -214,27 +242,20 @@ export default function DashboardPage() {
                 onClick={() => navigate(`/audit/${audit.id}`)}
               >
                 <button className="dp-del" onClick={e => handleDelete(e, audit.id)} title="Delete">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                  </svg>
+                  <X size={10} strokeWidth={2.5} color="#f87171" />
                 </button>
                 <div className="dp-card-top">
                   <div className="dp-domain-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.7">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
+                    <Globe size={14} strokeWidth={1.7} color="var(--muted)" />
                   </div>
                   <span className={`dp-badge ${qualityBadge(audit.quality)}`}>{audit.quality}</span>
                 </div>
                 <p className="dp-url">{audit.url}</p>
-                <p className="dp-kw">⌕ {audit.keyword}</p>
+                <p className="dp-kw">{audit.keyword}</p>
                 <div className="dp-card-foot">
                   <span className="dp-time">{timeAgo(audit.createdAt)}</span>
                   <button className="dp-arr">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
+                    <ArrowRight size={10} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>

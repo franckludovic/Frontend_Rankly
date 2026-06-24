@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-/* ── Hide native scrollbar — all browsers ── */
+/* ── Hide native scrollbar- all browsers ── */
 html, body {
   scrollbar-width: none;          /* Firefox */
   -ms-overflow-style: none;       /* IE / Edge legacy */
@@ -11,7 +11,7 @@ body::-webkit-scrollbar {
   display: none;                  /* Chrome / Safari / Edge */
 }
 
-/* ── Scroll indicator glass button — light mode tint ── */
+/* ── Scroll indicator glass button- light mode tint ── */
 @media (prefers-color-scheme: light) {
   /* The inline styles on ScrollIndicator are dark-glass by default;
      override background + border for light mode via a helper class if ever needed */
@@ -45,7 +45,7 @@ body::-webkit-scrollbar {
   --indigo:#818cf8;
 }
 
-/* ── Light theme — follows OS preference ── */
+/* ── Light theme- follows OS preference ── */
 @media (prefers-color-scheme: light) {
   :root {
     --bg:   #f0f4f8;
@@ -80,7 +80,7 @@ body::-webkit-scrollbar {
   background: var(--bg);
   border: none;
   border-radius: 0;
-  overflow: visible;            /* must NOT be hidden — hidden kills window scroll */
+  overflow: visible;            /* must NOT be hidden- hidden kills window scroll */
   font-family: 'Outfit', sans-serif;
   color: var(--text);
 }

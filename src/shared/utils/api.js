@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authSlice'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 60000, // 60s — your ML pipeline needs time
+  timeout: 60000, // 60s- your ML pipeline needs time
 })
 
 // Attach JWT to every request automatically
@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle 401 globally — redirect to login
+// Handle 401 globally- redirect to login
 api.interceptors.response.use(
   (res) => res,
   (err) => {

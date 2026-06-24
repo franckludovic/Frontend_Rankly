@@ -1,3 +1,5 @@
+import { Zap, ArrowRight } from 'lucide-react'
+
 export default function CtaSection() {
   return (
     <div className="cta-section">
@@ -10,13 +12,9 @@ export default function CtaSection() {
       </div>
       <div className="cta-buttons">
         <button className="cta-primary">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
-            <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
-          </svg>
+          <Zap size={13} fill="white" strokeWidth={0} />
           Get My Full Analysis
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <ArrowRight size={11} strokeWidth={2.5} color="white" />
         </button>
         <button className="cta-secondary">Sign in to existing account</button>
       </div>

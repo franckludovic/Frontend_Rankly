@@ -7,7 +7,14 @@ import { useAuditStore } from '../../../store/auditSlice.js'
  */
 
 export async function updateTaskStatus(auditId, taskId, status) {
-  const audit = await api.updateTaskStatus(auditId, taskId, status)
-  useAuditStore.getState().setAudit(audit)
-  return audit
+  await api.updateTaskStatus(auditId, taskId, status)
+  // Optimistically patch just this task's status in the store- do NOT replace
+  // the whole audit with the task object that the endpoint returns.
+  const { currentAudit, setAudit } = useAuditStore.getState()
+  if (currentAudit) {
+    const updatedTasks = (currentAudit.roadmapTasks || []).map(t =>
+      t.id === taskId ? { ...t, status } : t
+    )
+    setAudit({ ...currentAudit, roadmapTasks: updatedTasks })
+  }
 }

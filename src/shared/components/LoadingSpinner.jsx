@@ -11,7 +11,7 @@ export default function LoadingSpinner({ fullScreen = false }) {
         <div className="relative flex flex-col items-center gap-6">
           {/* Logo / Brand */}
           <div className="text-white text-3xl font-extrabold tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-            SEO<span className="text-[#c084fc]">Insight</span>
+            Rank<span className="text-[#c084fc]">ly</span>
           </div>
           {/* Spinner */}
           <div className="relative w-12 h-12">

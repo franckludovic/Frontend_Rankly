@@ -1,3 +1,5 @@
+import { Zap, Lock, ArrowRight } from 'lucide-react'
+
 export default function LimitScreen({ limitType = 'local', onBack }) {
   const isLocal = limitType === 'local'
   const title = isLocal ? 'Offline Scan Limit Reached' : 'Full Scan Limit Reached'
@@ -19,12 +21,10 @@ export default function LimitScreen({ limitType = 'local', onBack }) {
       {/* Brand logo bar */}
       <div className="w-brand" style={{ marginBottom: 'auto' }}>
         <div className="w-brand-icon">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
-            <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
-          </svg>
+          <Zap size={11} fill="white" strokeWidth={0} />
         </div>
         <span className="w-brand-name" style={{ fontFamily: "'Outfit',sans-serif" }}>
-          SEO<span>Insight</span>
+          Rank<span>ly</span>
         </span>
         <span className="w-brand-badge" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--red)', border: '1px solid rgba(239, 68, 68, 0.25)' }}>LIMIT</span>
       </div>
@@ -35,7 +35,7 @@ export default function LimitScreen({ limitType = 'local', onBack }) {
           background: 'rgba(251, 191, 36, 0.10)', border: '1px solid rgba(251, 191, 36, 0.2)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'
         }}>
-          <span style={{ fontSize: '24px' }}>🔒</span>
+          <Lock size={24} strokeWidth={1.8} />
         </div>
         
         <h1 className="w-headline" style={{ fontFamily: "'Outfit',sans-serif", fontWeight: 700 }}>
@@ -59,9 +59,7 @@ export default function LimitScreen({ limitType = 'local', onBack }) {
       <div className="w-ctas" style={{ marginTop: 'auto', width: '100%' }}>
         <button className="cta-primary" onClick={handleUpgrade}>
           Upgrade to Premium
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <ArrowRight size={11} strokeWidth={2.5} color="white" />
         </button>
         <button className="cta-secondary" onClick={onBack}>
           Go Back

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { register } from '../services/authService.js'
 import TextField from '../../../shared/components/TextField'
 import SocialLoginButton, { SocialLoginContainer } from './SocialLoginButton'
+import { User, Mail, Lock, ArrowRight, Settings, Check } from 'lucide-react'
 
 export default function RegisterForm() {
   const navigate = useNavigate()
@@ -77,8 +78,8 @@ export default function RegisterForm() {
 
       {/* OAuth */}
       <SocialLoginContainer>
-        <SocialLoginButton provider="google" onClick={() => console.log('Google login')} />
-        <SocialLoginButton provider="github" onClick={() => console.log('GitHub login')} />
+        <SocialLoginButton provider="google" />
+        <SocialLoginButton provider="github" />
       </SocialLoginContainer>
 
       <div className="auth-divider">
@@ -100,12 +101,7 @@ export default function RegisterForm() {
           }}
           onKeyDown={handleKey}
           error={validationErrors.first}
-          leadingIcon={
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          }
+          leadingIcon={<User size={13} strokeWidth={1.8} />}
         />
         <TextField
           label="Last Name"
@@ -118,12 +114,7 @@ export default function RegisterForm() {
           }}
           onKeyDown={handleKey}
           error={validationErrors.last}
-          leadingIcon={
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          }
+          leadingIcon={<User size={13} strokeWidth={1.8} />}
         />
       </div>
 
@@ -141,12 +132,7 @@ export default function RegisterForm() {
         }}
         onKeyDown={handleKey}
         error={validationErrors.email}
-        leadingIcon={
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-            <polyline points="22,6 12,13 2,6" />
-          </svg>
-        }
+        leadingIcon={<Mail size={13} strokeWidth={1.8} />}
       />
 
       {/* Password */}
@@ -163,12 +149,7 @@ export default function RegisterForm() {
         }}
         onKeyDown={handleKey}
         error={validationErrors.password}
-        leadingIcon={
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0110 0v4" />
-          </svg>
-        }
+        leadingIcon={<Lock size={13} strokeWidth={1.8} />}
       />
 
       {/* Terms Checkbox */}
@@ -179,9 +160,7 @@ export default function RegisterForm() {
           onClick={() => setAgreed(p => !p)}
         >
           {agreed && (
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <Check size={8} strokeWidth={3.5} stroke="white" />
           )}
         </button>
         <div className="auth-terms-txt">
@@ -204,15 +183,13 @@ export default function RegisterForm() {
       >
         {loading ? (
           <>
-            <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⚙</span>
+            <Settings size={13} strokeWidth={2} style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} />
             {' Creating account…'}
           </>
         ) : (
           <>
             Create Free Account{' '}
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            <ArrowRight size={13} strokeWidth={2.5} />
           </>
         )}
       </button>

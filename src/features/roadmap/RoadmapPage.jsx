@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAudit } from '../../store/auditSlice.js'
 import { getAudit } from '../audit/services/auditService.js'
 import { updateTaskStatus } from './services/roadmapService.js'
+import { Check, ArrowRight, Clock, Globe, Search } from 'lucide-react'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -104,13 +105,32 @@ const css = `
 .rp-status-txt.todo{color:var(--muted);}.rp-status-txt.progress{color:var(--amber);}.rp-status-txt.done{color:var(--green);}
 .rp-empty{text-align:center;padding:40px 20px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;}
 
+/* schema card */
+.rp-schema-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:18px 20px;margin-bottom:18px;animation:fadeUp .5s .09s ease both;}
+.rp-schema-hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.rp-schema-title-row{display:flex;align-items:center;gap:9px;}
+.rp-schema-bar{width:3px;height:17px;border-radius:2px;background:var(--green,#34d399);flex-shrink:0;}
+.rp-schema-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.rp-schema-type{font-family:'DM Mono',monospace;font-size:8px;padding:2px 8px;border-radius:4px;background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25);text-transform:uppercase;letter-spacing:.4px;}
+.rp-schema-desc{font-family:'Outfit',sans-serif;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;}
+.rp-schema-desc em{color:var(--text);font-style:normal;}
+.rp-schema-code-wrap{position:relative;}
+.rp-schema-code{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:14px 16px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.72);line-height:1.7;overflow-x:auto;white-space:pre;max-height:280px;overflow-y:auto;}
+.rp-schema-code::-webkit-scrollbar{width:4px;height:4px;}
+.rp-schema-code::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+.rp-copy-btn{position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border2,rgba(255,255,255,.12));background:var(--bg3,rgba(255,255,255,.03));font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.3px;white-space:nowrap;}
+.rp-copy-btn:hover{border-color:var(--teal-b,rgba(20,184,166,.25));color:var(--teal,#2dd4bf);background:var(--teal-d,rgba(20,184,166,.08));}
+.rp-copy-btn.copied{border-color:var(--green-b,rgba(52,211,153,.25));color:var(--green,#34d399);background:rgba(52,211,153,.08);}
+.rp-schema-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--faint,rgba(255,255,255,.18));margin-top:8px;}
+
 @media(max-width:1000px){.rp-sum-row{grid-template-columns:repeat(2,1fr);}.rp-task{grid-template-columns:36px 1fr auto;}.rp-right{min-width:90px;}}
 @media(max-width:760px){.rp{padding:20px 16px 40px;}.rp-right{display:none;}.rp-task{grid-template-columns:36px 1fr;}.rp-sum-row{grid-template-columns:1fr 1fr;}}
 @media(max-width:480px){.rp-sum-row{grid-template-columns:1fr 1fr;}}
 `
 
 const PRIORITIES = { critical:'var(--red,#f87171)', high:'var(--amber,#fbbf24)', medium:'var(--indigo,#818cf8)', low:'var(--border2)' }
-const STATUS_CYCLE = { todo: 'progress', progress: 'done', done: 'todo' }
+const STATUS_CYCLE = { todo: 'in_progress', in_progress: 'done', done: 'todo' }
+const statusCls   = s => s === 'in_progress' ? 'progress' : s  // CSS class uses shorter name
 const CATS = ['All','Metadata','Content','Technical','Structure','Links']
 
 export default function RoadmapPage() {
@@ -120,6 +140,17 @@ export default function RoadmapPage() {
   const [statusFilter, setStatusF] = useState('all')
   const [catFilter,    setCatF]    = useState('All')
   const [saving, setSaving]        = useState(null)
+  const [copied, setCopied]        = useState(false)
+
+  const copySchema = useCallback(() => {
+    const gs = currentAudit?.generatedSchema
+    const text = gs?.script_tag || gs?.json_ld || ''
+    if (!text) return
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [currentAudit])
 
   useEffect(() => {
     if (!currentAudit || currentAudit.id !== id) {
@@ -139,7 +170,7 @@ export default function RoadmapPage() {
   const a       = currentAudit
   const tasks   = a.roadmapTasks || []
   const done    = tasks.filter(t => t.status === 'done').length
-  const inProg  = tasks.filter(t => t.status === 'progress').length
+  const inProg  = tasks.filter(t => t.status === 'in_progress').length
   const todo    = tasks.filter(t => t.status === 'todo').length
   const pct     = tasks.length ? Math.round((done / tasks.length) * 100) : 0
 
@@ -175,8 +206,8 @@ export default function RoadmapPage() {
           <div className="rp-eyebrow"><span className="rp-eyebrow-txt">Optimization Roadmap</span></div>
           <h1 className="rp-title">Your path to ranking for <em>{a.keyword}</em></h1>
           <div className="rp-meta">
-            <div className="rp-chip"><span>⌕ <b>{a.keyword}</b></span></div>
-            <div className="rp-chip"><span>🌐 <b>{a.url}</b></span></div>
+            <div className="rp-chip"><Search size={11} strokeWidth={1.8} style={{opacity:.5}} /><span><b>{a.keyword}</b></span></div>
+            <div className="rp-chip"><Globe size={11} strokeWidth={1.8} style={{opacity:.5}} /><span><b>{a.url}</b></span></div>
           </div>
         </div>
 
@@ -187,7 +218,7 @@ export default function RoadmapPage() {
               <div className="rp-b-hl">Predicted Position Journey</div>
               <div className="rp-b-rank-row">
                 <span className="rp-rank-from">#{a.predictedRank}</span>
-                <span style={{ color:'var(--faint)',fontSize:18 }}>→</span>
+                <ArrowRight size={18} strokeWidth={1.5} style={{color:'var(--faint)'}} />
                 <span className="rp-rank-to" style={{ color: projRank <= 10 ? 'var(--green,#34d399)' : projRank <= 30 ? 'var(--teal,#2dd4bf)' : 'var(--indigo,#818cf8)' }}>
                   #{projRank}
                 </span>
@@ -233,12 +264,38 @@ export default function RoadmapPage() {
           ))}
         </div>
 
+        {/* Generated Schema Card- shown when page has no schema and we detected a type */}
+        {a.generatedSchema && !a.hasSchema && (
+          <div className="rp-schema-card">
+            <div className="rp-schema-hdr">
+              <div className="rp-schema-title-row">
+                <div className="rp-schema-bar"/>
+                <span className="rp-schema-title">Generated Schema Markup</span>
+                <span className="rp-schema-type">{a.generatedSchema.type}</span>
+              </div>
+            </div>
+            <p className="rp-schema-desc">
+              Your page has no structured data. Paste this <em>{a.generatedSchema.type}</em> schema into your{' '}
+              <em>{'<head>'}</em>. Replace <em>{'<!-- ... -->'}</em> comments with your real values.
+            </p>
+            <div className="rp-schema-code-wrap">
+              <pre className="rp-schema-code">{`<script type="application/ld+json">\n${a.generatedSchema.json_ld}\n</script>`}</pre>
+              <button className={`rp-copy-btn${copied ? ' copied' : ''}`} onClick={copySchema}>
+                {copied ? <><Check size={12} strokeWidth={2} /> COPIED</> : 'COPY'}
+              </button>
+            </div>
+            <div className="rp-schema-hint">
+              Fields marked with comments are placeholders- fill them in before publishing.
+            </div>
+          </div>
+        )}
+
         {/* Filter bar */}
         <div className="rp-filters">
           {[
             { label:'All',         cls:'f-all',  val:'all'      },
             { label:'To Do',       cls:'f-todo', val:'todo'     },
-            { label:'In Progress', cls:'f-prog', val:'progress' },
+            { label:'In Progress', cls:'f-prog', val:'in_progress' },
             { label:'Done',        cls:'f-done', val:'done'     },
           ].map(f => (
             <button key={f.val} className={`rp-fbtn ${f.cls}${statusFilter === f.val ? ' active' : ''}`} onClick={() => setStatusF(f.val)}>
@@ -263,22 +320,20 @@ export default function RoadmapPage() {
                 <div className="rp-accent">
                   <div className="rp-ppip" style={{ background: PRIORITIES[task.priority] || '#fff' }}/>
                   <button
-                    className={`rp-status-btn ${task.status}`}
+                    className={`rp-status-btn ${statusCls(task.status)}`}
                     onClick={() => cycleStatus(task)}
                     disabled={saving === task.id}
-                    title={`Click to mark as ${STATUS_CYCLE[task.status]}`}
+                    title={`Click to mark as ${STATUS_CYCLE[task.status] || 'todo'}`}
                   >
                     {task.status === 'done' && (
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--green,#34d399)" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
+                      <Check size={11} strokeWidth={3} color="var(--green,#34d399)" />
                     )}
-                    {task.status === 'progress' && (
+                    {task.status === 'in_progress' && (
                       <div style={{ width:7,height:7,borderRadius:2,background:'var(--amber,#fbbf24)' }}/>
                     )}
                   </button>
-                  <span className={`rp-status-txt ${task.status}`}>
-                    {task.status === 'todo' ? 'todo' : task.status === 'progress' ? 'wip' : 'done'}
+                  <span className={`rp-status-txt ${statusCls(task.status)}`}>
+                    {task.status === 'todo' ? 'todo' : task.status === 'in_progress' ? 'wip' : 'done'}
                   </span>
                 </div>
 
@@ -292,8 +347,8 @@ export default function RoadmapPage() {
                   <div className="rp-tags">
                     <span className={`rp-tag tag-${task.category.toLowerCase()}`}>{task.category}</span>
                     <span className={`rp-tag tag-${task.effort.toLowerCase()}`}>{task.effort} effort</span>
-                    <span className="rp-tag" style={{ color:'var(--muted)',borderColor:'var(--border)',background:'transparent' }}>
-                      ⏱ {task.time}
+                    <span className="rp-tag" style={{ color:'var(--muted)',borderColor:'var(--border)',background:'transparent', display:'inline-flex', alignItems:'center', gap:4 }}>
+                      <Clock size={11} strokeWidth={1.8} /> {task.time}
                     </span>
                   </div>
                 </div>

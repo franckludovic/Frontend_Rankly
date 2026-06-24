@@ -271,7 +271,7 @@ export default function CompetitorPage(){
   const C=COMPETITORS[selected];
   const metricDef=CHART_METRICS.find(m=>m.key===chartMetric);
 
-  /* Build chart data — YOUR page first, then competitors in rank order */
+  /* Build chart data- YOUR page first, then competitors in rank order */
   const chartData=[
     {
       name:"You",
@@ -358,7 +358,7 @@ export default function CompetitorPage(){
           </div>
 
           {/* ══════════════════════════════════════════
-              STATIC OVERVIEW CHART — all 11 sites
+              STATIC OVERVIEW CHART- all 11 sites
               Does not change when tabs are clicked
               (selected competitor is highlighted only)
           ══════════════════════════════════════════ */}
@@ -516,7 +516,7 @@ export default function CompetitorPage(){
           <div className="kw-presence-wrap">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div style={{fontFamily:"'DM Mono',monospace",fontSize:"10px",textTransform:"uppercase",letterSpacing:".6px",color:"rgba(255,255,255,.5)"}}>
-                Keyword Placement — {C.domain} vs. your page
+                Keyword Placement- {C.domain} vs. your page
               </div>
               <div style={{display:"flex",gap:"12px"}}>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:"9px",color:"var(--indigo)"}}>● {C.domain}</span>
@@ -606,7 +606,7 @@ export default function CompetitorPage(){
                 </div>
                 <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
                   {youAhead.length===0
-                    ? <div style={{fontFamily:"'Outfit',sans-serif",fontSize:"13px",color:"rgba(251,191,36,.7)"}}>Work through the gaps — this competitor is strong.</div>
+                    ? <div style={{fontFamily:"'Outfit',sans-serif",fontSize:"13px",color:"rgba(251,191,36,.7)"}}>Work through the gaps- this competitor is strong.</div>
                     : youAhead.map((m,i)=>(
                       <div key={i} className="gap-row">
                         <span style={{color:"var(--green)",flexShrink:0}}>{I.up}</span>

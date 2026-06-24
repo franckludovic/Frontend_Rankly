@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { ChevronDown } from 'lucide-react'
 
 /**
  * ScrollIndicator
@@ -11,7 +12,7 @@ import { useState, useEffect, useRef } from 'react'
  * • Disappears when all content fits in the viewport
  *
  * Key: We MUST NOT have height:100% on html/body or overflow:hidden
- * on any ancestor — both kill window scroll and make scrollY always 0.
+ * on any ancestor- both kill window scroll and make scrollY always 0.
  */
 export default function ScrollIndicator() {
   const [atBottom, setAtBottom] = useState(false)
@@ -37,7 +38,7 @@ export default function ScrollIndicator() {
       rafRef.current = requestAnimationFrame(check)
     }
 
-    // Initial checks — run several times as content phases in
+    // Initial checks- run several times as content phases in
     check()
     const t1 = setTimeout(check, 200)
     const t2 = setTimeout(check, 600)
@@ -122,22 +123,15 @@ export default function ScrollIndicator() {
         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(45,212,191,.25)' }}
         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(20,30,50,.55)' }}
       >
-        {/* Single chevron — rotates to point up when at bottom */}
-        <svg
-          width="13" height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        {/* Single chevron- rotates to point up when at bottom */}
+        <ChevronDown
+          size={13}
+          strokeWidth={2.5}
           style={{
             transition: 'transform .3s ease',
             transform:  atBottom ? 'rotate(180deg)' : 'rotate(0deg)',
           }}
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+        />
       </button>
     </>
   )

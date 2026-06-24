@@ -1,3 +1,5 @@
+import { AlertTriangle, Lock, Check, X } from 'lucide-react'
+
 function LockedSection({ label, sub, children, isUnavailable = false }) {
   return (
     <div className={`locked-section ${isUnavailable ? 'unavail-section' : ''}`} style={{ position: 'relative', overflow: 'hidden', padding: '12px 16px', borderBottom: '1px solid var(--b)' }}>
@@ -15,7 +17,7 @@ function LockedSection({ label, sub, children, isUnavailable = false }) {
           background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', margin: '0 auto'
         }}>
-          {isUnavailable ? '⚠️' : '🔒'}
+          {isUnavailable ? <AlertTriangle size={14} strokeWidth={1.8} /> : <Lock size={14} strokeWidth={1.8} />}
         </div>
         <div className="lock-lbl" style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '2px' }}>
           {label}
@@ -155,8 +157,8 @@ export default function IssuesList({ auditMode = 'cloud', scrapedData, keyword =
             ))}
           </div>
         ) : (
-          <div style={{ fontSize: '11.5px', color: 'var(--green)', padding: '4px 0' }}>
-            ✓ No major issues found! Your basic on-page SEO parameters are fully optimized.
+          <div style={{ fontSize: '11.5px', color: 'var(--green)', padding: '4px 0', display:'flex', alignItems:'center', gap:'4px' }}>
+            <Check size={12} strokeWidth={2} /> No major issues found! Your basic on-page SEO parameters are fully optimized.
           </div>
         )}
       </div>
@@ -233,7 +235,7 @@ export default function IssuesList({ auditMode = 'cloud', scrapedData, keyword =
               alignItems: 'center', justifyContent: 'center', gap: '4px',
               background: 'rgba(3,12,26,.65)', zIndex: 2, padding: '10px', textAlign: 'center'
             }}>
-              <span style={{ fontSize: '13px' }}>⚠️</span>
+              <AlertTriangle size={13} strokeWidth={1.8} />
               <div className="lock-lbl" style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', textTransform: 'uppercase', color: 'var(--amber)', fontWeight: 600 }}>
                 Competitor Comparison Unavailable
               </div>

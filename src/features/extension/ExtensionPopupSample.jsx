@@ -16,7 +16,7 @@ const css = `
   --indigo:#818cf8;
 }
 
-/* ── Scene wrapper — simulates a browser window ── */
+/* ── Scene wrapper- simulates a browser window ── */
 .scene{
   min-height:100vh;
   background:
@@ -156,7 +156,7 @@ const css = `
 .sm-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;line-height:1;color:white;}
 .sm-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:var(--faint);margin-top:3px;}
 
-/* Top issues — free teaser */
+/* Top issues- free teaser */
 .issue-list{display:flex;flex-direction:column;gap:5px;}
 .issue-row{
   display:flex;align-items:flex-start;gap:8px;
@@ -316,7 +316,7 @@ export default function ExtensionPopup() {
             <div className="bc-dot" style={{ background: "#ffbd2e" }}/>
             <div className="bc-dot" style={{ background: "#28ca41" }}/>
           </div>
-          <div className="bc-bar">example.com/laptops — Buy Laptops Today | Best Deals</div>
+          <div className="bc-bar">example.com/laptops- Buy Laptops Today | Best Deals</div>
           <div className="bc-ext-btn">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
               <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
@@ -389,7 +389,7 @@ export default function ExtensionPopup() {
                     <span className="score-grade grade-c" style={{ fontFamily:"'Syne',sans-serif" }}>C+</span>
                     <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"9px", color:"rgba(255,255,255,.3)" }}>SEO Grade</span>
                   </div>
-                  <div className="score-headline">Needs work — 3 critical<br/>issues are hurting your rank</div>
+                  <div className="score-headline">Needs work- 3 critical<br/>issues are hurting your rank</div>
                   <div className="score-sub">Keyword: 'buy cheap laptops'</div>
                 </div>
               </div>
@@ -431,7 +431,7 @@ export default function ExtensionPopup() {
                 </div>
               </div>
 
-              {/* Top 2 issues — free */}
+              {/* Top 2 issues- free */}
               <div className="section">
                 <div className="section-lbl">Top issues found</div>
                 <div className="issue-list">
@@ -448,7 +448,7 @@ export default function ExtensionPopup() {
                 </div>
               </div>
 
-              {/* LOCKED — Predicted Position */}
+              {/* LOCKED- Predicted Position */}
               <LockedSection label="Predicted Google Position" sub="Sign up to unlock">
                 <div>
                   <div className="section-lbl">AI-Predicted Google Position</div>
@@ -462,7 +462,7 @@ export default function ExtensionPopup() {
                 </div>
               </LockedSection>
 
-              {/* LOCKED — More issues */}
+              {/* LOCKED- More issues */}
               <LockedSection label="10 more issues found" sub="Including 1 more critical">
                 <div>
                   <div className="section-lbl">Full issue list</div>
@@ -474,7 +474,7 @@ export default function ExtensionPopup() {
                 </div>
               </LockedSection>
 
-              {/* LOCKED — Competitor comparison */}
+              {/* LOCKED- Competitor comparison */}
               <LockedSection label="Competitor Comparison" sub="See how top 10 pages beat you">
                 <div>
                   <div className="section-lbl">vs. Rank #1 competitor</div>
@@ -513,7 +513,7 @@ export default function ExtensionPopup() {
           )}
         </div>
 
-        <div className="scene-label">Browser Extension Popup — 420 × auto</div>
+        <div className="scene-label">Browser Extension Popup- 420 × auto</div>
       </div>
     </>
   );

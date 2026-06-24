@@ -1,14 +1,14 @@
+import { Zap, Download } from 'lucide-react'
+
 export default function PopupHeader({ url = 'example.com/laptops', showPrint = false, onPrint }) {
   return (
     <div className="popup-hdr">
       <div className="ph-logo">
         <div className="ph-logo-icon">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
-            <path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/>
-          </svg>
+          <Zap size={11} fill="white" strokeWidth={0} />
         </div>
         <div className="ph-logo-name" style={{ fontFamily: "'Outfit',sans-serif" }}>
-          SEO<span>Insight</span>
+          Rank<span>ly</span>
         </div>
       </div>
 
@@ -30,9 +30,7 @@ export default function PopupHeader({ url = 'example.com/laptops', showPrint = f
               color: 'var(--muted)'
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-            </svg>
+            <Download size={14} strokeWidth={2.5} />
           </button>
         )}
       </div>

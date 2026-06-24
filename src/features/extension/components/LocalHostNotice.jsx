@@ -1,8 +1,10 @@
 /**
- * LocalHostNotice — warning sheet shown when the active site is local/non-deployed.
+ * LocalHostNotice- warning sheet shown when the active site is local/non-deployed.
  * Animates in from the bottom with a slide-up effect, warning the user that the audit
  * will be restricted to on-page factors only.
  */
+import { AlertTriangle, Check, X } from 'lucide-react'
+
 export default function LocalHostNotice({ url, onConfirm, onCancel }) {
   return (
     <div className="local-notice-overlay">
@@ -13,7 +15,7 @@ export default function LocalHostNotice({ url, onConfirm, onCancel }) {
         {/* Warning Icon with a soft pulse */}
         <div className="ln-icon-wrap">
           <div className="ln-icon-pulse" />
-          <span className="ln-icon">⚠️</span>
+          <span className="ln-icon"><AlertTriangle size={24} strokeWidth={1.8} /></span>
         </div>
 
         {/* Headline & Body */}
@@ -34,11 +36,11 @@ export default function LocalHostNotice({ url, onConfirm, onCancel }) {
 
         <div className="ln-bullet-list">
           <div className="ln-bullet-item">
-            <span className="ln-bullet-check">✓</span>
+            <span className="ln-bullet-check"><Check size={12} strokeWidth={2} /></span>
             <span><strong>Available:</strong> Tag structure, SEO titles, image alt attributes, mobile friendliness, meta descriptions.</span>
           </div>
           <div className="ln-bullet-item">
-            <span className="ln-bullet-cross">✗</span>
+            <span className="ln-bullet-cross"><X size={12} strokeWidth={2} /></span>
             <span><strong>Unavailable:</strong> Core Web Vitals, external backlink profile, competitor SERP gap analysis.</span>
           </div>
         </div>

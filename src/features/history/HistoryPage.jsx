@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getHistory, deleteAudit } from './services/historyService.js'
 import { useAuditStore } from '../../store/auditSlice.js'
+import { Search, Trash2, ArrowDown, ArrowUp, FileText } from 'lucide-react'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -158,9 +159,7 @@ export default function HistoryPage() {
         {/* Controls */}
         <div className="hp-controls">
           <div className="hp-search-wrap">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.8">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <Search size={13} strokeWidth={1.8} color="rgba(255,255,255,.25)" />
             <input
               className="hp-search"
               placeholder="Search by URL or keyword…"
@@ -176,7 +175,7 @@ export default function HistoryPage() {
             ))}
           </div>
           <button className={`hp-sort${sortDesc ? '' : ' active'}`} onClick={() => setSortDesc(p => !p)}>
-            {sortDesc ? '↓ Newest first' : '↑ Oldest first'}
+            {sortDesc ? <><ArrowDown size={11} strokeWidth={1.8} /> Newest first</> : <><ArrowUp size={11} strokeWidth={1.8} /> Oldest first</>}
           </button>
         </div>
 
@@ -185,7 +184,7 @@ export default function HistoryPage() {
           <div className="hp-loading"><div className="hp-spin"/><span>Loading history…</span></div>
         ) : filtered.length === 0 ? (
           <div className="hp-empty">
-            <div className="hp-empty-icon">📭</div>
+            <div className="hp-empty-icon"><FileText size={40} strokeWidth={1.4} /></div>
             <div className="hp-empty-title">{search || filter !== 'all' ? 'No matching audits' : 'No audits yet'}</div>
             <div className="hp-empty-sub">
               {search || filter !== 'all'
@@ -209,16 +208,13 @@ export default function HistoryPage() {
             {filtered.map(audit => (
               <div key={audit.id} className="hp-row" onClick={() => handleOpen(audit)}>
                 <div className="hp-url">{audit.url}</div>
-                <div className="hp-kw">⌕ {audit.keyword}</div>
+                <div className="hp-kw">{audit.keyword}</div>
                 <div><span className={`hp-badge ${(audit.quality||'LOW').toLowerCase()}`}>{audit.quality}</span></div>
                 <div className="hp-rank">#{audit.predictedRank}</div>
                 <div className="hp-time">{timeAgo(audit.createdAt)}</div>
                 <div>
                   <button className="hp-del-btn" onClick={e => handleDelete(e, audit.id)} title="Delete">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                      <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
-                    </svg>
+                    <Trash2 size={11} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>

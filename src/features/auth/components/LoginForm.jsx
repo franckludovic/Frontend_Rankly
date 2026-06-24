@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../services/authService.js'
 import TextField from '../../../shared/components/TextField'
 import SocialLoginButton, { SocialLoginContainer } from './SocialLoginButton'
+import { Mail, Lock, ArrowRight, Settings } from 'lucide-react'
 
 export default function LoginForm() {
   const navigate = useNavigate()
@@ -64,8 +65,8 @@ export default function LoginForm() {
 
       {/* OAuth */}
       <SocialLoginContainer>
-        <SocialLoginButton provider="google" onClick={() => console.log('Google login')} />
-        <SocialLoginButton provider="github" onClick={() => console.log('GitHub login')} />
+        <SocialLoginButton provider="google" />
+        <SocialLoginButton provider="github" />
       </SocialLoginContainer>
 
       <div className="auth-divider">
@@ -88,12 +89,7 @@ export default function LoginForm() {
         }}
         onKeyDown={handleKey}
         error={validationErrors.email}
-        leadingIcon={
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-            <polyline points="22,6 12,13 2,6" />
-          </svg>
-        }
+        leadingIcon={<Mail size={13} strokeWidth={1.8} />}
       />
 
       {/* Password */}
@@ -111,12 +107,7 @@ export default function LoginForm() {
         onKeyDown={handleKey}
         error={validationErrors.password}
         headerRight={<button type="button" className="auth-forgot" onClick={() => console.log('Forgot password clicked')}>Forgot Password?</button>}
-        leadingIcon={
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0110 0v4" />
-          </svg>
-        }
+        leadingIcon={<Lock size={13} strokeWidth={1.8} />}
       />
 
       {/* Error */}
@@ -134,15 +125,13 @@ export default function LoginForm() {
       >
         {loading ? (
           <>
-            <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⚙</span>
+            <Settings size={13} strokeWidth={2} style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} />
             {' Signing in…'}
           </>
         ) : (
           <>
             Sign In to Dashboard{' '}
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            <ArrowRight size={13} strokeWidth={2.5} />
           </>
         )}
       </button>

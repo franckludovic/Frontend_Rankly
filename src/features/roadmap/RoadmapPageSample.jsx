@@ -151,7 +151,7 @@ const css = `
 .pri-medium  {background:var(--id);color:var(--indigo);border:1px solid var(--ib);}
 .pri-low     {background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--b);}
 
-/* Task right — impact */
+/* Task right- impact */
 .task-right{padding:15px 16px 15px 10px;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;flex-shrink:0;min-width:110px;}
 .impact-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);}
 .impact-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;line-height:1;text-align:right;}
@@ -212,14 +212,14 @@ const TASKS_INIT = [
     id:1, priority:"critical", category:"Metadata", effort:"Easy", time:"~10 min",
     posGain:{min:5,max:9}, impactPct:95,
     title:"Add your keyword to the meta description",
-    desc:"Your meta description doesn't mention 'buy cheap laptops' and is only 78 characters — well below the 120–160 char target. Rewrite it to include the keyword naturally and hit the optimal length.",
+    desc:"Your meta description doesn't mention 'buy cheap laptops' and is only 78 characters- well below the 120–160 char target. Rewrite it to include the keyword naturally and hit the optimal length.",
     status:"todo",
   },
   {
     id:2, priority:"critical", category:"Metadata", effort:"Easy", time:"~5 min",
     posGain:{min:4,max:7}, impactPct:88,
     title:"Place your keyword in the page title",
-    desc:"'Buy Laptops Today | Best Deals' does not contain the target keyword. Rewrite it to something like 'Buy Cheap Laptops — Best Deals & Reviews' and aim for 50–60 characters.",
+    desc:"'Buy Laptops Today | Best Deals' does not contain the target keyword. Rewrite it to something like 'Buy Cheap Laptops- Best Deals & Reviews' and aim for 50–60 characters.",
     status:"todo",
   },
   {
@@ -268,7 +268,7 @@ const TASKS_INIT = [
     id:9, priority:"medium", category:"Metadata", effort:"Easy", time:"~5 min",
     posGain:{min:1,max:2}, impactPct:35,
     title:"Fix the page title length (currently 43 characters)",
-    desc:"Your title is 43 chars — Google starts truncating below 50 characters in some viewports. Expanding it to 50–60 chars while including the keyword maximises SERP display space.",
+    desc:"Your title is 43 chars- Google starts truncating below 50 characters in some viewports. Expanding it to 50–60 chars while including the keyword maximises SERP display space.",
     status:"todo",
   },
   {
@@ -281,7 +281,7 @@ const TASKS_INIT = [
   {
     id:11, priority:"low", category:"Content", effort:"Medium", time:"~45 min",
     posGain:{min:0,max:2}, impactPct:22,
-    title:"Improve readability — break up dense text blocks",
+    title:"Improve readability- break up dense text blocks",
     desc:"Readability score is 65/100. Breaking long paragraphs into shorter ones, adding bullet lists, and using subheadings every 300–400 words reduces bounce rate and improves dwell time.",
     status:"todo",
   },
@@ -319,7 +319,7 @@ export default function RoadmapPage(){
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterCat, setFilterCat] = useState("all");
 
-  /* Projected rank — decreases as tasks are marked done */
+  /* Projected rank- decreases as tasks are marked done */
   const projectedRank = useMemo(()=>{
     const totalGain = tasks.reduce((acc,t)=>{
       if(t.status==="done") return acc + (t.posGain.min + t.posGain.max)/2;
@@ -443,7 +443,7 @@ export default function RoadmapPage(){
               </div>
             </div>
             <div className="disclaimer">
-              * Rank estimates are projections based on competitive analysis — actual results depend on Google's algorithm and your competitors' activity.
+              * Rank estimates are projections based on competitive analysis- actual results depend on Google's algorithm and your competitors' activity.
             </div>
           </div>
 
@@ -510,7 +510,7 @@ export default function RoadmapPage(){
                       <button
                         className={`status-btn ${task.status}`}
                         onClick={()=>toggleStatus(task.id)}
-                        title={`Status: ${task.status} — click to advance`}
+                        title={`Status: ${task.status}- click to advance`}
                       >
                         {isDone
                           ? <span style={{color:"var(--green)"}}>{I.check}</span>
@@ -538,7 +538,7 @@ export default function RoadmapPage(){
                       </div>
                     </div>
 
-                    {/* Right — impact */}
+                    {/* Right- impact */}
                     <div className="task-right">
                       <div>
                         <div className="impact-lbl">Est. rank gain</div>

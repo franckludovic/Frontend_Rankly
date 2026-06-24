@@ -47,10 +47,10 @@ export default function ExtensionPopup() {
   const [phase, setPhase] = useState('welcome') // 'welcome' | 'scanning' | 'results'
   const [stepIdx, setStepIdx] = useState(0)
   
-  // URL displayed in header/welcome screen
-  const [url, setUrl] = useState('example.com/laptops')
+  // URL displayed in header/welcome screen (overwritten by chrome.tabs.query in useEffect)
+  const [url, setUrl] = useState('')
   // Full raw URL used for local deployment checks
-  const [fullUrl, setFullUrl] = useState('https://example.com/laptops')
+  const [fullUrl, setFullUrl] = useState('')
   
   // State to toggle the warning sheet overlay
   const [showLocalNotice, setShowLocalNotice] = useState(false)
@@ -62,7 +62,7 @@ export default function ExtensionPopup() {
   const [score, setScore] = useState(68)
 
   // User input target keyword for page SEO audit
-  const [keyword, setKeyword] = useState('buy laptops')
+  const [keyword, setKeyword] = useState('')
 
   // Real-time scraped DOM signals
   const [scrapedData, setScrapedData] = useState(null)
@@ -290,8 +290,53 @@ export default function ExtensionPopup() {
         updateOfflineCount(offlineCount + 1)
       } else {
         console.log('[ExtensionPopup] Routing to cloud audit pipeline...')
-        setScore(84)
-        updateOnlineCount(onlineCount + 1)
+        try {
+          let deviceId = localStorage.getItem('rankly.deviceId')
+          if (!deviceId) {
+            deviceId = 'dev_' + Math.random().toString(36).substring(2, 15)
+            localStorage.setItem('rankly.deviceId', deviceId)
+          }
+          const tokenRaw = localStorage.getItem('rankly.token')
+          let token = null
+          try { token = tokenRaw ? JSON.parse(tokenRaw) : null } catch {}
+          
+          const idempotencyKey = `ext_${deviceId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+          const apiBaseUrl = 'http://localhost:8000'
+          const result = await fetch(`${apiBaseUrl}/api/extension/audit/online`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Device-Id': deviceId,
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              url: currentUrl,
+              keyword,
+              features: data,
+              idempotency_key: idempotencyKey,
+            }),
+          })
+          if (!result.ok) {
+            const err = await result.json()
+            const errDetail = err.detail || {}
+            if (errDetail.code === 'TRIAL_LIMIT_REACHED' || err.code === 'TRIAL_LIMIT_REACHED') {
+              setLimitType('cloud')
+              setPhase('limit')
+              return
+            }
+            throw new Error(errDetail.detail || err.detail || 'Cloud audit failed')
+          }
+          const responseJson = await result.json()
+          const qual = responseJson.prediction?.classification?.quality
+          const scoreVal = qual === 'HIGH' ? 85 : qual === 'MEDIUM' ? 60 : 35
+          setScore(scoreVal)
+          updateOnlineCount(onlineCount + 1)
+        } catch (e) {
+          console.error('[ExtensionPopup] Cloud audit failed:', e)
+          // Fallback to mock score on network/server error so popup doesn't break
+          setScore(84)
+          updateOnlineCount(onlineCount + 1)
+        }
       }
     }
 
@@ -414,7 +459,7 @@ export default function ExtensionPopup() {
         />
       )}
 
-      {/* ── Scroll indicator (glassy circle + fade) — always mounted ── */}
+      {/* ── Scroll indicator (glassy circle + fade)- always mounted ── */}
       <ScrollIndicator />
     </div>
   )

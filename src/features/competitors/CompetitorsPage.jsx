@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAudit } from '../../store/auditSlice.js'
 import { getAudit } from '../audit/services/auditService.js'
+import { api } from '../../shared/services/apiClient.js'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, ReferenceLine
 } from 'recharts'
+import { Bell, Check, X, HelpCircle, CircleDot, Layers, Play, FileText, MapPin, Tag, Globe, Search } from 'lucide-react'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -106,8 +108,40 @@ const css = `
 .cp-kp-loc{font-family:'DM Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--faint,rgba(255,255,255,.18));margin-bottom:5px;}
 .cp-kp-lbl{font-family:'DM Mono',monospace;font-size:7.5px;text-transform:uppercase;color:var(--faint,rgba(255,255,255,.18));margin-top:3px;}
 
+/* SERP Features */
+.cp-sf-section{margin-bottom:20px;animation:fadeUp .5s .08s ease both;}
+.cp-sf-intro{font-family:'Outfit',sans-serif;font-size:12px;color:var(--muted,rgba(255,255,255,.4));margin-bottom:14px;line-height:1.5;}
+.cp-sf-intro em{color:var(--teal,#2dd4bf);font-style:normal;}
+.cp-sf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.cp-sf-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;transition:border-color .2s;}
+.cp-sf-card:hover{border-color:var(--border2,rgba(255,255,255,.12));}
+.cp-sf-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.cp-sf-icon-wrap{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cp-sf-icon{font-family:'DM Mono',monospace;font-size:16px;color:rgba(255,255,255,.4);}
+.cp-sf-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:5px;}
+.cp-sf-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:4px;border:1px solid;text-transform:uppercase;letter-spacing:.4px;font-weight:500;}
+.cp-sf-rec{font-family:'Outfit',sans-serif;font-size:11.5px;color:var(--muted,rgba(255,255,255,.4));line-height:1.55;}
+.cp-sf-paa{margin-top:10px;border-top:1px solid var(--border,rgba(255,255,255,.07));padding-top:8px;}
+.cp-sf-paa-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint,rgba(255,255,255,.18));margin-bottom:6px;}
+.cp-sf-q{display:flex;gap:6px;align-items:flex-start;margin-bottom:4px;font-family:'Outfit',sans-serif;font-size:11px;color:var(--muted,rgba(255,255,255,.4));line-height:1.4;}
+.cp-sf-q-dot{color:var(--teal,#2dd4bf);flex-shrink:0;}
+
+/* watch panel */
+.cp-watch-panel{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:20px;animation:fadeUp .5s .08s ease both;}
+.cp-watch-list{display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.cp-watch-row{display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;transition:border-color .15s;}
+.cp-watch-row.active{border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.04);}
+.cp-watch-url{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cp-watch-domain{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);flex-shrink:0;min-width:120px;}
+.cp-watch-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:none;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.cp-watch-btn.watching{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--amber,#fbbf24);}
+.cp-watch-btn.watching:hover{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:var(--red,#f87171);}
+.cp-watch-btn.not-watching{background:var(--bg3);border:1px solid var(--border2);color:var(--muted);}
+.cp-watch-btn.not-watching:hover{border-color:rgba(251,191,36,.3);color:var(--amber,#fbbf24);}
+.cp-watch-btn:disabled{opacity:.4;cursor:default;}
+
 @media(max-width:1100px){.cp-ov-row{grid-template-columns:repeat(2,1fr);}.cp-kp-grid{grid-template-columns:repeat(3,1fr);}.cp-col-labels,.cp-mrow{grid-template-columns:1fr 130px 1fr;}.cp-col-labels{padding:0 24px;}.cp-mrow{padding:12px 24px;}}
-@media(max-width:600px){.cp{padding:20px 16px 40px;}.cp-mrow-val{font-size:14px;}.cp-col-labels,.cp-mrow{grid-template-columns:1fr 90px 1fr;}.cp-col-labels{padding:0 14px;}.cp-mrow{padding:12px 14px;}}
+@media(max-width:600px){.cp{padding:20px 16px 40px;}.cp-mrow-val{font-size:14px;}.cp-col-labels,.cp-mrow{grid-template-columns:1fr 90px 1fr;}.cp-col-labels{padding:0 14px;}.cp-mrow{padding:12px 14px;}.cp-ov-row{grid-template-columns:repeat(2,1fr);gap:8px;}.cp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px;}.cp-ms-btn{text-align:center;}.cp-kp-grid{grid-template-columns:repeat(2,1fr);}.cp-chart-card{padding:14px 12px 12px;}.cp-selector{overflow:hidden;}.cp-tabs{padding-bottom:6px;}.cp-watch-panel{padding:14px 14px;}}
 `
 
 const METRICS = [
@@ -124,6 +158,27 @@ const H2H_ROWS = [
   { key: 'altCoverage',    label: 'Alt Coverage',     unit: '%',  higher: true  },
   { key: 'h2Count',        label: 'H2 Headings',      unit: '',   higher: true  },
 ]
+
+function getSerpIcon(type) {
+  const props = { size: 16, strokeWidth: 1.8, color: 'rgba(255,255,255,.4)' }
+  switch (type) {
+    case 'snippet':   return <FileText {...props} />
+    case 'paa':       return <HelpCircle {...props} />
+    case 'knowledge': return <CircleDot {...props} />
+    case 'images':    return <Layers {...props} />
+    case 'video':     return <Play {...props} />
+    case 'news':      return <FileText {...props} />
+    case 'local':     return <MapPin {...props} />
+    case 'ads':       return <Tag {...props} />
+    default:          return <Search {...props} />
+  }
+}
+
+const SF_IMPACT = {
+  high:   { label: 'High Impact',   bg: 'rgba(52,211,153,.1)',   color: '#34d399', border: 'rgba(52,211,153,.25)'  },
+  medium: { label: 'Medium Impact', bg: 'rgba(251,191,36,.08)',  color: '#fbbf24', border: 'rgba(251,191,36,.2)'   },
+  info:   { label: 'Info',          bg: 'rgba(129,140,248,.08)', color: '#818cf8', border: 'rgba(129,140,248,.2)'  },
+}
 
 function CustomTooltip({ active, payload, label, unit }) {
   if (!active || !payload?.length) return null
@@ -142,12 +197,53 @@ export default function CompetitorsPage() {
   const { currentAudit, isLoading, setAudit } = useAudit()
   const [selComp, setSelComp]      = useState(0)
   const [selMetric, setSelMetric]  = useState(0)
+  const [watchedIds, setWatchedIds] = useState({})   // url → watchId | null
+  const [watchLoading, setWatchLoading] = useState({}) // url → bool
 
   useEffect(() => {
     if (!currentAudit || currentAudit.id !== id) {
       getAudit(id).then(setAudit).catch(() => navigate('/dashboard'))
     }
   }, [id])
+
+  useEffect(() => {
+    if (!currentAudit?.competitors?.length) return
+    Promise.all(
+      currentAudit.competitors.map(c =>
+        api.checkWatch(c.url, currentAudit.keyword)
+          .then(r => ({ url: c.url, watchId: r.watching ? r.watch?.id : null }))
+          .catch(() => ({ url: c.url, watchId: null }))
+      )
+    ).then(results => {
+      const map = {}
+      results.forEach(r => { map[r.url] = r.watchId })
+      setWatchedIds(map)
+    })
+  }, [currentAudit?.id])
+
+  const toggleWatch = useCallback(async (competitor) => {
+    const url     = competitor.url
+    const keyword = currentAudit.keyword
+    const watchId = watchedIds[url]
+    setWatchLoading(p => ({ ...p, [url]: true }))
+    try {
+      if (watchId) {
+        await api.removeWatch(watchId)
+        setWatchedIds(p => ({ ...p, [url]: null }))
+      } else {
+        const res = await api.addWatch({
+          url,
+          keyword,
+          source_audit_id:    currentAudit.id,
+          initial_title:      competitor.title  || null,
+          initial_word_count: competitor.wordCount || null,
+        })
+        setWatchedIds(p => ({ ...p, [url]: res.watch?.id || true }))
+      }
+    } finally {
+      setWatchLoading(p => ({ ...p, [url]: false }))
+    }
+  }, [currentAudit, watchedIds])
 
   if (isLoading || !currentAudit || currentAudit.id !== id) {
     return (
@@ -184,17 +280,63 @@ export default function CompetitorsPage() {
           <div className="cp-eyebrow"><span className="cp-eyebrow-txt">Competitor Benchmarking</span></div>
           <h1 className="cp-title">Competing for <em>{a.keyword}</em></h1>
           <div className="cp-meta">
-            <div className="cp-chip"><span>⌕ <b>{a.keyword}</b></span></div>
-            <div className="cp-chip"><span>🌐 <b>{a.url}</b></span></div>
+            <div className="cp-chip"><Search size={11} strokeWidth={1.8} style={{opacity:.5}} /><span><b>{a.keyword}</b></span></div>
+            <div className="cp-chip"><Globe size={11} strokeWidth={1.8} style={{opacity:.5}} /><span><b>{a.url}</b></span></div>
             <span className="cp-count">{a.competitors.length} competitors</span>
           </div>
         </div>
+
+        {/* SERP Feature Opportunities */}
+        {(a.serpFeatures?.length > 0) && (
+          <div className="cp-sf-section">
+            <div className="cp-shdr">
+              <div className="cp-sbar" style={{ background:'#f59e0b' }}/>
+              <h2 className="cp-stitle">SERP Feature Opportunities</h2>
+              <span className="cp-count" style={{ marginLeft:8 }}>{a.serpFeatures.length} active</span>
+            </div>
+            <div className="cp-sf-intro">
+              Google is showing special features for "<em>{a.keyword}</em>". Each one is an opportunity your page can capture.
+            </div>
+            <div className="cp-sf-grid">
+              {a.serpFeatures.map((sf, i) => {
+                const impact = SF_IMPACT[sf.traffic_impact] || SF_IMPACT.info
+                return (
+                  <div key={i} className="cp-sf-card">
+                    <div className="cp-sf-card-top">
+                      <div className="cp-sf-icon-wrap">
+                        {getSerpIcon(sf.icon)}
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div className="cp-sf-name">{sf.feature}</div>
+                        <span className="cp-sf-badge" style={{ background:impact.bg, color:impact.color, borderColor:impact.border }}>
+                          {impact.label}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="cp-sf-rec">{sf.recommendation}</div>
+                    {sf.details?.questions?.length > 0 && (
+                      <div className="cp-sf-paa">
+                        <div className="cp-sf-paa-lbl">PAA questions to target</div>
+                        {sf.details.questions.map((q, qi) => (
+                          <div key={qi} className="cp-sf-q">
+                            <span className="cp-sf-q-dot">›</span>
+                            <span>{q}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Bar chart */}
         <div className="cp-chart-card">
           <div className="cp-chart-top">
             <div>
-              <div className="cp-chart-title">Metric Comparison — All Competitors</div>
+              <div className="cp-chart-title">Metric Comparison- All Competitors</div>
               <div className="cp-chart-sub">You vs. the top {a.competitors.length} ranking pages</div>
             </div>
             <div className="cp-legend">
@@ -258,13 +400,13 @@ export default function CompetitorsPage() {
           </div>
           <div className="cp-ov" style={{ borderColor:'var(--teal-b,rgba(20,184,166,.25))',background:'var(--teal-d,rgba(20,184,166,.12))' }}>
             <div className="cp-ov-lbl">Keyword Signals</div>
-            <div className="cp-ov-val" style={{ color:'var(--teal,#2dd4bf)' }}>{comp.keywordSignal}/5</div>
-            <div className="cp-pips">{Array.from({length:5}).map((_,i)=><div key={i} className={`cp-pip ${i < comp.keywordSignal ? 'on-t' : 'off'}`}/>)}</div>
+            <div className="cp-ov-val" style={{ color:'var(--teal,#2dd4bf)' }}>{comp.keywordSignal}/4</div>
+            <div className="cp-pips">{Array.from({length:4}).map((_,i)=><div key={i} className={`cp-pip ${i < comp.keywordSignal ? 'on-t' : 'off'}`}/>)}</div>
           </div>
           <div className="cp-ov" style={{ borderColor:'var(--green-b,rgba(52,211,153,.2))',background:'var(--green-d,rgba(52,211,153,.08))' }}>
             <div className="cp-ov-lbl">Technical Score</div>
-            <div className="cp-ov-val" style={{ color:'var(--green,#34d399)' }}>{comp.technicalScore}/5</div>
-            <div className="cp-pips">{Array.from({length:5}).map((_,i)=><div key={i} className={`cp-pip ${i < comp.technicalScore ? 'on-g' : 'off'}`}/>)}</div>
+            <div className="cp-ov-val" style={{ color:'var(--green,#34d399)' }}>{comp.technicalScore}/4</div>
+            <div className="cp-pips">{Array.from({length:4}).map((_,i)=><div key={i} className={`cp-pip ${i < comp.technicalScore ? 'on-g' : 'off'}`}/>)}</div>
           </div>
         </div>
 
@@ -310,7 +452,7 @@ export default function CompetitorsPage() {
         <div className="cp-kp-wrap">
           <div className="cp-shdr">
             <div className="cp-sbar" style={{ background:'var(--indigo,#818cf8)' }}/>
-            <h2 className="cp-stitle">Keyword Placement — {comp.domain}</h2>
+            <h2 className="cp-stitle">Keyword Placement- {comp.domain}</h2>
           </div>
           <div className="cp-kp-grid">
             {[
@@ -325,7 +467,9 @@ export default function CompetitorsPage() {
                 background:  cell.compHas ? 'rgba(52,211,153,.06)' : 'rgba(239,68,68,.05)',
               }}>
                 <div className="cp-kp-loc">{cell.loc}</div>
-                <div style={{ fontSize:18 }}>{cell.compHas ? '✓' : '✗'}</div>
+                <div style={{ fontSize:18, display:'flex', justifyContent:'center' }}>
+                  {cell.compHas ? <Check size={18} strokeWidth={2} color="#34d399" /> : <X size={18} strokeWidth={2} color="#f87171" />}
+                </div>
                 <div className="cp-kp-lbl" style={{ color: cell.compHas ? '#34d399' : '#f87171' }}>
                   {cell.compHas ? 'Has KW' : 'No KW'}
                 </div>
@@ -334,6 +478,39 @@ export default function CompetitorsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Competitor Watch Panel */}
+        <div className="cp-watch-panel">
+          <div className="cp-shdr">
+            <div className="cp-sbar" style={{ background:'var(--amber,#fbbf24)' }}/>
+            <h2 className="cp-stitle">Monitor Competitors</h2>
+            <span className="cp-count" style={{ marginLeft:8, color:'var(--amber,#fbbf24)', borderColor:'rgba(251,191,36,.25)', background:'rgba(251,191,36,.08)' }}>
+              {Object.values(watchedIds).filter(Boolean).length} watching
+            </span>
+          </div>
+          <div style={{ fontFamily:"'Outfit',sans-serif", fontSize:12, color:'var(--muted)', marginBottom:10 }}>
+            Turn on weekly alerts- Rankly re-checks title + word count and emails you if anything changes.
+          </div>
+          <div className="cp-watch-list">
+            {a.competitors.map(c => {
+              const isWatching = !!watchedIds[c.url]
+              const loading    = !!watchLoading[c.url]
+              return (
+                <div key={c.url} className={`cp-watch-row${isWatching ? ' active' : ''}`}>
+                  <div className="cp-watch-domain">{c.domain}</div>
+                  <div className="cp-watch-url">{c.url}</div>
+                  <button
+                    className={`cp-watch-btn ${isWatching ? 'watching' : 'not-watching'}`}
+                    disabled={loading}
+                    onClick={() => toggleWatch(c)}
+                  >
+                    {loading ? '…' : isWatching ? <><Bell size={12} strokeWidth={1.8} /> Watching</> : '+ Watch'}
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>

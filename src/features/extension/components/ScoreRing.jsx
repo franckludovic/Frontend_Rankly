@@ -1,7 +1,7 @@
 /**
- * ScoreRing — SVG donut ring showing SEO score.
+ * ScoreRing- SVG donut ring showing SEO score.
  * Color is determined by score bracket (red / amber / green).
- * No glow/drop-shadow — clean crisp ring only.
+ * No glow/drop-shadow- clean crisp ring only.
  */
 export default function ScoreRing({ score = 68 }) {
   const r    = 38, cx = 44, cy = 44
@@ -14,7 +14,7 @@ export default function ScoreRing({ score = 68 }) {
       <svg width="88" height="88" viewBox="0 0 88 88">
         {/* Track */}
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="7"/>
-        {/* Progress — no drop-shadow, clean ring */}
+        {/* Progress- no drop-shadow, clean ring */}
         <circle
           cx={cx} cy={cy} r={r} fill="none"
           stroke={color} strokeWidth="7"

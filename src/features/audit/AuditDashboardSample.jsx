@@ -100,7 +100,7 @@ const css = `
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 
 /* ════════════════════════════════
-   HERO METRICS — top 2 large cards
+   HERO METRICS- top 2 large cards
 ════════════════════════════════ */
 .hero-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;animation:fadeUp .5s .05s ease both;}
 
@@ -163,7 +163,7 @@ const css = `
 .rank-lbl.current{color:var(--indigo);font-weight:500;}
 
 /* ════════════════════════════════
-   SECONDARY METRICS — 5 small cards
+   SECONDARY METRICS- 5 small cards
 ════════════════════════════════ */
 .sec-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;animation:fadeUp .5s .1s ease both;}
 .sc{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px 14px;transition:all .2s;}
@@ -393,7 +393,7 @@ const I = {
   zap:     <svg width="11" height="11" viewBox="0 0 24 24" fill="#a5b4fc"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg>,
 };
 
-/* ── Suggestions data — plain language, no model internals ── */
+/* ── Suggestions data- plain language, no model internals ── */
 const suggestions = [
   {
     rank:1, impact:"high", pct:92,
@@ -506,7 +506,7 @@ export default function AnalysisPage() {
                 <div className="rank-fill" style={{width:"34%"}}/>
               </div>
               <div className="rank-labels">
-                <span className="rank-lbl">#1 — Top result</span>
+                <span className="rank-lbl">#1- Top result</span>
                 <span className="rank-lbl current">#34 ← now</span>
                 <span className="rank-lbl">#100</span>
               </div>
@@ -619,7 +619,7 @@ export default function AnalysisPage() {
                   <div className="prog">
                     <div className="prog-fill" style={{width:"65%",background:"linear-gradient(90deg,#0d9488,#2dd4bf)"}}/>
                   </div>
-                  <div className="flag green" style={{marginBottom:0}}>{I.check} 65/100 — readable for a broad audience</div>
+                  <div className="flag green" style={{marginBottom:0}}>{I.check} 65/100- readable for a broad audience</div>
                 </div>
 
                 <div className="p-sep"/>
@@ -740,7 +740,7 @@ export default function AnalysisPage() {
 
                 <div className="h2-section">
                   <div className="h2-hdr">
-                    <span className="h2-lbl">Subheadings (H2) — <span style={{color:"#f87171"}}>0 of 5 contain keyword</span></span>
+                    <span className="h2-lbl">Subheadings (H2)- <span style={{color:"#f87171"}}>0 of 5 contain keyword</span></span>
                   </div>
                   <div className="samples">
                     {["'Top Rated Models'","'Customer Reviews'","'Shipping Information'"].map(s=>(
