@@ -8,6 +8,7 @@ import { Outlet, NavLink, useNavigate, useParams } from 'react-router-dom'
 import { useTheme, getPreferredTheme } from '../../styles/theme.js'
 import { useAuth } from '../../store/authSlice.js'
 import { useAudit } from '../../store/auditSlice.js'
+import { usePlanStore } from '../../store/planSlice.js'
 import { logout } from '../../features/auth/services/authService.js'
 import '../../styles/theme.css'
 import { Zap, BarChart2, Users, Map, Clock, LayoutGrid, Code2, HelpCircle, LogOut, Plus, Bell, User, Settings, Menu, Sun, Moon, ChevronRight, Search, CreditCard } from 'lucide-react'
@@ -170,8 +171,10 @@ const PAGE_LABELS = {
 
 export default function AppShell() {
   const { setTheme }            = useTheme()
-  const { user }                = useAuth()
+  const { user, token }         = useAuth()
   const { currentAudit }        = useAudit()
+  const { fetch: fetchPlan,
+          reset: resetPlan }    = usePlanStore()
   const navigate                = useNavigate()
   const { id: auditId }         = useParams()
 
@@ -185,6 +188,10 @@ export default function AppShell() {
     setIsDark(t === 'dark')
     setTheme(t)
   }, [])
+
+  useEffect(() => {
+    fetchPlan(token)
+  }, [token])
 
   useEffect(() => {
     const handler = (e) => {
@@ -203,6 +210,7 @@ export default function AppShell() {
   }
 
   const handleLogout = async () => {
+    resetPlan()
     await logout()
     navigate('/login', { replace: true })
   }

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme, getPreferredTheme, applyTheme } from '../../styles/theme.js'
-import { Cpu, BarChart2, FileText, Code2, Link, TrendingUp, ArrowUpDown, LayoutGrid, Sun, Moon, ArrowRight, Check, X, ArrowUp, CircleDot } from 'lucide-react'
+import { Cpu, BarChart2, FileText, Code2, Link, TrendingUp, ArrowUpDown, LayoutGrid, Sun, Moon, ArrowRight, Check, X, ArrowUp, CircleDot, Download, Puzzle, Zap, Shield, Wifi } from 'lucide-react'
+
+// Update this URL once the extension is approved on the Chrome Web Store
+const CHROME_STORE_URL = 'https://chrome.google.com/webstore/detail/rankly/PENDING'
 
 /* ─── 3D card tilt hook ─────────────────────────────────────────── */
 /* NOTE: We must clear the CSS `animation` on the element before driving
@@ -568,6 +571,65 @@ body > *{position:relative;z-index:1;}
 [data-theme="light"] .lp-pc-btn-outline:hover{color:#0f172a;}
 @media(max-width:1024px){.lp-pricing-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:640px){.lp-pricing-grid{grid-template-columns:1fr;}}
+
+/* ── CHROME EXTENSION ── */
+.lp-ext-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.lp-ext-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:20px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);font-family:'DM Mono',monospace;font-size:9.5px;color:#818cf8;letter-spacing:.4px;text-transform:uppercase;margin-bottom:16px;}
+[data-theme="light"] .lp-ext-eyebrow{background:rgba(79,70,229,.08);border-color:rgba(79,70,229,.2);color:#4f46e5;}
+.lp-ext-feats{display:flex;flex-direction:column;gap:10px;margin:22px 0 26px;}
+.lp-ext-feat{display:flex;align-items:flex-start;gap:11px;font-family:'Outfit',sans-serif;font-size:13px;color:rgba(226,232,240,.7);line-height:1.4;}
+[data-theme="light"] .lp-ext-feat{color:rgba(15,23,42,.6);}
+.lp-ext-feat-icon{flex-shrink:0;margin-top:1px;}
+.lp-ext-btn-chrome{display:inline-flex;align-items:center;gap:9px;padding:11px 22px;border-radius:9px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:600;border:none;cursor:pointer;transition:all .2s;}
+.lp-ext-btn-chrome:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(99,102,241,.4);}
+.lp-ext-install-hint{margin-top:16px;display:flex;flex-direction:column;gap:6px;}
+.lp-ext-install-row{display:flex;align-items:baseline;gap:10px;font-family:'Outfit',sans-serif;font-size:12px;color:rgba(226,232,240,.38);line-height:1.4;}
+[data-theme="light"] .lp-ext-install-row{color:rgba(15,23,42,.38);}
+.lp-ext-install-n{font-family:'DM Mono',monospace;font-size:9px;color:#818cf8;flex-shrink:0;}
+[data-theme="light"] .lp-ext-install-n{color:#4f46e5;}
+.lp-install-code{display:inline-block;padding:1px 6px;background:rgba(99,102,241,.12);border-radius:4px;color:#818cf8;font-family:'DM Mono',monospace;font-size:10px;}
+[data-theme="light"] .lp-install-code{background:rgba(79,70,229,.08);color:#4f46e5;}
+.lp-ext-note{font-family:'DM Mono',monospace;font-size:9px;color:rgba(226,232,240,.18);margin-top:6px;}
+[data-theme="light"] .lp-ext-note{color:rgba(15,23,42,.22);}
+
+/* Browser mock */
+.lp-bm-wrap{position:relative;}
+.lp-bm-glow{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:280px;height:160px;background:radial-gradient(ellipse,rgba(99,102,241,.14),transparent 70%);pointer-events:none;}
+.lp-browser-mock{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(99,102,241,.08);background:#071120;font-family:'Outfit',sans-serif;position:relative;z-index:1;}
+[data-theme="light"] .lp-browser-mock{background:#f0f4f8;border-color:rgba(0,0,0,.1);box-shadow:0 20px 50px rgba(0,0,0,.12);}
+.lp-bm-bar{display:flex;align-items:center;gap:5px;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.022);}
+[data-theme="light"] .lp-bm-bar{background:rgba(0,0,0,.03);border-bottom-color:rgba(0,0,0,.07);}
+.lp-bm-dot{width:8px;height:8px;border-radius:50%;}
+.lp-bm-url{flex:1;margin:0 8px;padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:4px;font-family:'DM Mono',monospace;font-size:8.5px;color:rgba(226,232,240,.28);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+[data-theme="light"] .lp-bm-url{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.07);color:rgba(15,23,42,.3);}
+.lp-bm-ext-chip{display:flex;align-items:center;gap:4px;padding:2px 7px;background:rgba(99,102,241,.14);border:1px solid rgba(99,102,241,.22);border-radius:4px;font-family:'DM Mono',monospace;font-size:7.5px;color:#818cf8;white-space:nowrap;}
+[data-theme="light"] .lp-bm-ext-chip{background:rgba(79,70,229,.09);color:#4f46e5;}
+.lp-bm-body{background:#030c1a;}
+[data-theme="light"] .lp-bm-body{background:#f8fafc;}
+.lp-bm-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06);}
+[data-theme="light"] .lp-bm-hdr{border-bottom-color:rgba(0,0,0,.06);}
+.lp-bm-logo{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#e2e8f0;}
+[data-theme="light"] .lp-bm-logo{color:#0f172a;}
+.lp-bm-logo em{color:#2dd4bf;font-style:normal;}
+.lp-bm-score-row{display:flex;align-items:center;gap:11px;padding:12px 12px 8px;}
+.lp-bm-ring{position:relative;width:58px;height:58px;flex-shrink:0;}
+.lp-bm-ring svg{display:block;}
+.lp-bm-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.lp-bm-score-n{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;line-height:1;color:#2dd4bf;}
+.lp-bm-score-d{font-family:'DM Mono',monospace;font-size:7px;color:rgba(226,232,240,.22);}
+.lp-bm-grade{display:inline-block;padding:2px 7px;border-radius:4px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.18);font-family:'Syne',sans-serif;font-size:9.5px;font-weight:700;color:#34d399;margin-bottom:3px;}
+.lp-bm-headline{font-size:10px;color:rgba(226,232,240,.55);line-height:1.3;font-family:'Outfit',sans-serif;}
+[data-theme="light"] .lp-bm-headline{color:rgba(15,23,42,.5);}
+.lp-bm-checks{padding:0 12px 10px;display:flex;flex-direction:column;gap:3px;}
+.lp-bm-check{display:flex;align-items:center;justify-content:space-between;padding:4px 7px;border-radius:5px;background:rgba(255,255,255,.018);border:1px solid rgba(255,255,255,.045);font-size:9.5px;}
+[data-theme="light"] .lp-bm-check{background:rgba(0,0,0,.018);border-color:rgba(0,0,0,.045);}
+.lp-bm-check-name{color:rgba(226,232,240,.5);font-family:'Outfit',sans-serif;}
+[data-theme="light"] .lp-bm-check-name{color:rgba(15,23,42,.45);}
+.lp-bm-check-pass{font-family:'DM Mono',monospace;font-size:8px;color:#34d399;}
+.lp-bm-check-fail{font-family:'DM Mono',monospace;font-size:8px;color:#f87171;}
+.lp-bm-check-warn{font-family:'DM Mono',monospace;font-size:8px;color:#fbbf24;}
+.lp-bm-cta{margin:4px 12px 12px;padding:7px;border-radius:7px;background:linear-gradient(135deg,rgba(13,148,136,.18),rgba(8,145,178,.1));border:1px solid rgba(45,212,191,.18);text-align:center;font-family:'Outfit',sans-serif;font-size:9.5px;font-weight:600;color:#2dd4bf;}
+@media(max-width:900px){.lp-ext-grid{grid-template-columns:1fr;gap:36px;}.lp-browser-mock{max-width:380px;margin:0 auto;}}
 `
 
 const IC = {
@@ -956,7 +1018,6 @@ export default function LandingPage() {
       <section className="lp-section" style={{ borderTop:'1px solid rgba(255,255,255,.05)' }}>
         <div style={{ textAlign:'center' }}>
           <div className="lp-section-eyebrow" style={{ justifyContent:'center' }}>
-            <span className="lp-section-tag indigo">vs The Competition</span>
           </div>
           <h2 className="lp-h2 reveal" style={{ textAlign:'center' }}>
             Tools at $130/month give you<br />backlink graphs. We give you a <em>to-do list.</em>
@@ -1070,6 +1131,109 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── CHROME EXTENSION ── */}
+      <section className="lp-section" id="extension" style={{ borderTop:'1px solid rgba(255,255,255,.05)', paddingTop:80, paddingBottom:80 }}>
+        <div className="lp-ext-grid">
+
+          {/* Left - copy + install */}
+          <div className="reveal-left">
+            
+            <h2 className="lp-h2" style={{ fontSize:'clamp(22px,2.6vw,36px)' }}>
+              Audit any page without<br /><em>leaving your browser.</em>
+            </h2>
+            <p className="lp-section-sub" style={{ marginTop:10, fontSize:14 }}>
+              The Rankly sidebar runs a full 70-point SEO check on the page you're browsing - no URL copy-paste, no tab switching, no waiting.
+            </p>
+
+            <div className="lp-ext-feats">
+              {[
+                { icon:<Zap size={14} strokeWidth={2} color="#2dd4bf"/>,    text:'Instant 0–100 SEO score and top issues in under 2 seconds.' },
+                { icon:<Wifi size={14} strokeWidth={2} color="#818cf8"/>,   text:'Works offline - on-device ML model, no internet required.' },
+                { icon:<Shield size={14} strokeWidth={2} color="#34d399"/>, text:'5 free scans with no account. Sign in later to sync to your dashboard.' },
+                { icon:<Check size={14} strokeWidth={2} color="#fbbf24"/>,  text:'Also works on Microsoft Edge and Brave.' },
+              ].map((f, i) => (
+                <div key={i} className="lp-ext-feat">
+                  <span className="lp-ext-feat-icon">{f.icon}</span>
+                  {f.text}
+                </div>
+              ))}
+            </div>
+
+            <button
+              className="lp-ext-btn-chrome"
+              onClick={() => window.open(CHROME_STORE_URL.includes('PENDING') ? '/extension.zip' : CHROME_STORE_URL, '_blank')}
+            >
+              <Download size={14} strokeWidth={2} />
+              {CHROME_STORE_URL.includes('PENDING') ? 'Download Extension - Free' : 'Add to Chrome - Free'}
+              <ArrowRight size={13} strokeWidth={2.5} />
+            </button>
+
+            <div className="lp-ext-install-hint">
+              <div className="lp-ext-install-row"><span className="lp-ext-install-n">1.</span> Download the .zip and unzip it.</div>
+              <div className="lp-ext-install-row"><span className="lp-ext-install-n">2.</span> Open <span className="lp-install-code">chrome://extensions</span> → enable Developer mode.</div>
+              <div className="lp-ext-install-row"><span className="lp-ext-install-n">3.</span> Click "Load unpacked" and select the unzipped folder.</div>
+            </div>
+            <div className="lp-ext-note">Chrome Web Store listing coming soon · takes ~60 s to install manually</div>
+          </div>
+
+          {/* Right - browser mock */}
+          <div className="reveal-right">
+            <div className="lp-bm-wrap">
+              <div className="lp-bm-glow" />
+              <div className="lp-browser-mock">
+                <div className="lp-bm-bar">
+                  <div className="lp-bm-dot" style={{ background:'#f87171' }} />
+                  <div className="lp-bm-dot" style={{ background:'#fbbf24' }} />
+                  <div className="lp-bm-dot" style={{ background:'#34d399' }} />
+                  <div className="lp-bm-url">yourblog.com/seo-tips-2025</div>
+                  <div className="lp-bm-ext-chip"><Puzzle size={8} strokeWidth={2} />Rankly</div>
+                </div>
+                <div className="lp-bm-body">
+                  <div className="lp-bm-hdr">
+                    <div className="lp-bm-logo">Rank<em>ly</em></div>
+                    <span style={{ fontFamily:"'DM Mono',monospace", fontSize:7, padding:'2px 6px', borderRadius:3, background:'rgba(45,212,191,.1)', border:'1px solid rgba(45,212,191,.18)', color:'#2dd4bf' }}>FREE</span>
+                  </div>
+                  <div className="lp-bm-score-row">
+                    <div className="lp-bm-ring">
+                      <svg width="58" height="58" viewBox="0 0 58 58">
+                        <circle cx="29" cy="29" r="23" fill="none" stroke="rgba(45,212,191,.1)" strokeWidth="4.5"/>
+                        <circle cx="29" cy="29" r="23" fill="none" stroke="#2dd4bf" strokeWidth="4.5"
+                          strokeDasharray="144.5" strokeDashoffset="43" strokeLinecap="round"
+                          transform="rotate(-90 29 29)"/>
+                      </svg>
+                      <div className="lp-bm-ring-center">
+                        <div className="lp-bm-score-n">70</div>
+                        <div className="lp-bm-score-d">/100</div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="lp-bm-grade">High</div>
+                      <div className="lp-bm-headline">3 issues found<br />on this page.</div>
+                    </div>
+                  </div>
+                  <div className="lp-bm-checks">
+                    {[
+                      { name:'HTTPS',           val:'Active',         cls:'pass' },
+                      { name:'Page Title',      val:'Optimised',      cls:'pass' },
+                      { name:'Meta Desc',       val:'Missing keyword', cls:'fail' },
+                      { name:'Canonical',       val:'Missing',        cls:'warn' },
+                      { name:'Mobile Viewport', val:'Configured',     cls:'pass' },
+                    ].map((c, i) => (
+                      <div key={i} className="lp-bm-check">
+                        <span className="lp-bm-check-name">{c.name}</span>
+                        <span className={`lp-bm-check-${c.cls}`}>{c.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="lp-bm-cta">View full report → rankly.app</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       {/* ── FINAL CTA ── */}
       <section className="lp-final-cta">
         <h2 className="lp-cta-h reveal">
@@ -1077,7 +1241,7 @@ export default function LandingPage() {
         </h2>
         <p className="lp-cta-sub reveal">Free forever for solo audits. No credit card. No "book a demo."</p>
         <button className="lp-btn-primary reveal" style={{ margin:'0 auto', fontSize:16, padding:'16px 36px' }} onClick={() => navigate('/register')}>
-          Audit your first page- it's free
+          Audit your first page, it's free!
           <ArrowRight size={17} strokeWidth={2.5} />
         </button>
         <div className="lp-cta-note reveal">60 seconds · 70+ SEO signals · ML rank prediction</div>
@@ -1090,6 +1254,7 @@ export default function LandingPage() {
           <a className="lp-fl" href="#features">Features</a>
           <a className="lp-fl" href="#how">How it works</a>
           <a className="lp-fl" href="#who">For who</a>
+          <a className="lp-fl" href="#extension">Extension</a>
           <span className="lp-fl" onClick={() => navigate('/login')}>Login</span>
           <span className="lp-fl" onClick={() => navigate('/register')}>Sign up</span>
         </div>

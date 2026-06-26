@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../store/authSlice'
-import { Check, CreditCard, Zap, Building2, Rocket, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react'
+import { Check, CreditCard, Zap, Building2, Rocket, ArrowRight, ExternalLink, AlertCircle, Code2, Lock } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -12,7 +12,7 @@ const PLANS = [
     icon: <Zap size={18} strokeWidth={1.8} />,
     desc: 'For solo creators getting started.',
     limit: 5,
-    features: ['3 audits / month', '10 SERP competitors', 'SEO score + rank prediction', 'On-page recommendations', 'Schema generator'],
+    features: ['5 audits / month', '10 SERP competitors', 'SEO score + rank prediction', 'On-page recommendations', 'Schema generator'],
   },
   {
     id: 'pro', name: 'Pro', price: 14, xaf: '8,400',
@@ -88,7 +88,32 @@ const css = `
 /* Error banner */
 .bl-error { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--red-d); border: 1px solid var(--red-b); border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--red); margin-bottom: 20px; }
 
+/* Developer Add-on */
+.bl-addon-wrap { margin-top: 28px; }
+.bl-addon-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+.bl-addon-card { border-radius: 14px; padding: 22px 24px; border: 1px solid rgba(129,140,248,.25); background: linear-gradient(135deg, rgba(129,140,248,.06) 0%, rgba(99,102,241,.04) 100%); display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.bl-addon-card.bl-addon-active { border-color: rgba(52,211,153,.3); background: linear-gradient(135deg, rgba(52,211,153,.06) 0%, rgba(13,148,136,.04) 100%); }
+.bl-addon-card.bl-addon-locked { border-color: var(--border); background: var(--bg2); opacity: .65; }
+.bl-addon-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(129,140,248,.3); background: rgba(129,140,248,.1); color: #818cf8; }
+.bl-addon-icon.active { border-color: rgba(52,211,153,.3); background: rgba(52,211,153,.1); color: var(--green,#34d399); }
+.bl-addon-info { flex: 1; min-width: 200px; }
+.bl-addon-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.bl-addon-desc { font-family: 'Outfit', sans-serif; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.bl-addon-feats { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.bl-addon-feat { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.bl-addon-price { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -.5px; white-space: nowrap; }
+.bl-addon-price em { font-size: 14px; font-weight: 500; font-style: normal; color: var(--muted); }
+.bl-addon-period { font-family: 'DM Mono', monospace; font-size: 9.5px; color: var(--muted); }
+.bl-addon-btn { padding: 10px 22px; border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .18s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.bl-addon-btn-add { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.25); }
+.bl-addon-btn-add:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(99,102,241,.35); }
+.bl-addon-btn-add:disabled { opacity: .5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.bl-addon-btn-portal { background: transparent; border: 1px solid rgba(52,211,153,.3); color: var(--green,#34d399); }
+.bl-addon-btn-portal:hover { background: rgba(52,211,153,.08); }
+.bl-addon-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 100px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; }
+
 @media(max-width:860px){ .bl-grid{ grid-template-columns: 1fr 1fr; } }
+@media(max-width:680px){ .bl-addon-card{ flex-direction: column; align-items: flex-start; } }
 @media(max-width:540px){ .bl-grid{ grid-template-columns: 1fr; } .bl-current{ flex-direction: column; align-items: flex-start; } }
 `
 
@@ -122,6 +147,7 @@ export default function BillingPage() {
   }, [token])
 
   const currentPlan = sub?.plan || 'free'
+  const hasDevAddon = sub?.dev_addon === true
   const planMeta    = PLANS.find(p => p.id === currentPlan) || PLANS[0]
   const usedAudits  = usage?.used ?? 0
   const planLimit   = planMeta.limit
@@ -299,8 +325,85 @@ export default function BillingPage() {
         })}
       </div>
 
+      {/* ── Developer Add-on ── */}
+      <div className="bl-addon-wrap">
+        <div className="bl-addon-label">Add-ons</div>
+        {(() => {
+          const apiIncluded = currentPlan === 'agency' || currentPlan === 'business'
+          const canAdd      = currentPlan === 'pro' && !hasDevAddon
+          const isActive    = currentPlan === 'pro' && hasDevAddon
+          const needsPro    = currentPlan === 'free'
+          const cardClass   = `bl-addon-card${isActive || apiIncluded ? ' bl-addon-active' : needsPro ? ' bl-addon-locked' : ''}`
+
+          return (
+            <div className={cardClass}>
+              <div className={`bl-addon-icon${isActive || apiIncluded ? ' active' : ''}`}>
+                {needsPro ? <Lock size={18} strokeWidth={1.8} /> : <Code2 size={18} strokeWidth={1.8} />}
+              </div>
+
+              <div className="bl-addon-info">
+                <div className="bl-addon-name">Developer Access</div>
+                <div className="bl-addon-desc">Generate API keys and call every Rankly endpoint programmatically from CI/CD, dashboards, or custom tooling.</div>
+                <div className="bl-addon-feats">
+                  {['REST API access', 'Multiple named keys', 'Bearer token auth', 'Full OpenAPI docs'].map(f => (
+                    <span key={f} className="bl-addon-feat">
+                      <Check size={10} strokeWidth={2.5} style={{ color: isActive || apiIncluded ? 'var(--green,#34d399)' : '#818cf8' }} />
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {apiIncluded ? (
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:6 }}>
+                  <span className="bl-addon-badge" style={{ background:'rgba(52,211,153,.1)', color:'var(--green,#34d399)', border:'1px solid rgba(52,211,153,.25)' }}>
+                    <Check size={11} strokeWidth={2.5} /> Included in {planMeta.name}
+                  </span>
+                  <button className="bl-addon-btn bl-addon-btn-portal" onClick={handlePortal} disabled={portalLoading}>
+                    <ExternalLink size={12} strokeWidth={2} /> Manage
+                  </button>
+                </div>
+              ) : isActive ? (
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:6 }}>
+                  <span className="bl-addon-badge" style={{ background:'rgba(52,211,153,.1)', color:'var(--green,#34d399)', border:'1px solid rgba(52,211,153,.25)' }}>
+                    <Check size={11} strokeWidth={2.5} /> Active
+                  </span>
+                  <button className="bl-addon-btn bl-addon-btn-portal" onClick={handlePortal} disabled={portalLoading}>
+                    <ExternalLink size={12} strokeWidth={2} /> Manage
+                  </button>
+                </div>
+              ) : canAdd ? (
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
+                  <div style={{ textAlign:'right' }}>
+                    <div className="bl-addon-price"><em>$</em>9</div>
+                    <div className="bl-addon-period">/month · cancel anytime</div>
+                  </div>
+                  <button
+                    className="bl-addon-btn bl-addon-btn-add"
+                    onClick={() => handleUpgrade('dev_addon')}
+                    disabled={!!loadingPlan}
+                  >
+                    {loadingPlan === 'dev_addon' ? 'Redirecting…' : <>Add to Plan <ArrowRight size={13} strokeWidth={2.2} /></>}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
+                  <div style={{ textAlign:'right' }}>
+                    <div className="bl-addon-price"><em>$</em>9</div>
+                    <div className="bl-addon-period">/month · requires Pro</div>
+                  </div>
+                  <span className="bl-addon-badge" style={{ background:'var(--bg3)', color:'var(--muted)', border:'1px solid var(--border)' }}>
+                    <Lock size={10} strokeWidth={2} /> Upgrade to Pro first
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        })()}
+      </div>
+
       <div style={{ marginTop:24, fontFamily:"'DM Mono',monospace", fontSize:10, color:'var(--faint)', textAlign:'center' }}>
-        Payments are processed securely by Stripe. Cancel anytime from the billing portal.
+        Payments are processed securely by Lemon Squeezy. Cancel anytime from the billing portal.
       </div>
     </div>
   )

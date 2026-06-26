@@ -11,8 +11,9 @@ export function normalizeAudit(data) {
   const recommendations = data.recommendations || []
   const competitors = data.competitors || []
 
-  // Compute derived seoScore
-  const quality = prediction.classification?.quality || 'LOW'
+  // Normalise quality to uppercase — the label encoder may return title-case ('Medium')
+  // but all frontend comparisons expect uppercase ('MEDIUM').
+  const quality = (prediction.classification?.quality || 'LOW').toUpperCase()
   const baseScore = quality === 'HIGH' ? 85 : quality === 'MEDIUM' ? 60 : 35
   const techBonus = (onPage.technical_score || 0) * 5
   const seoScore = Math.min(100, baseScore + techBonus)
@@ -68,6 +69,9 @@ export function normalizeAudit(data) {
     createdAt: data.created_at,
     seoScore,
     quality,
+    signalCount: prediction.features_used || 51,
+    classificationConfidence: Math.round(prediction.classification?.confidence || 0),
+    rankR2: prediction.regression?.r2_score ?? null,
     predictedRank: prediction.regression?.predicted_rank || 50,
     keywordCoverage: (onPage.title_has_kw ? 1 : 0) + (onPage.meta_has_kw ? 1 : 0) + (onPage.h1_has_kw ? 1 : 0) + (onPage.alt_has_kw ? 1 : 0),
     technicalScore: onPage.technical_score || 0,

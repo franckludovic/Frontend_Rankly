@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../shared/services/apiClient.js'
 import { Play, Check, Download, ArrowLeft } from 'lucide-react'
+import FeatureGate from '../../shared/components/FeatureGate.jsx'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -187,7 +188,7 @@ export default function BulkAuditPage() {
   const hasResults = (job?.results?.length || 0) > 0
 
   return (
-    <>
+    <FeatureGate feature="bulk" label="Bulk Sitemap Audit">
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="bk">
         {/* Header */}
@@ -317,6 +318,6 @@ export default function BulkAuditPage() {
           </div>
         )}
       </div>
-    </>
+    </FeatureGate>
   )
 }

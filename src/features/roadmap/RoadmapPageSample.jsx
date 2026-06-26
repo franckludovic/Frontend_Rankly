@@ -544,7 +544,7 @@ export default function RoadmapPage(){
                         <div className="impact-lbl">Est. rank gain</div>
                         <div className="impact-val" style={{color:PRIORITY_COLORS[task.priority],fontFamily:"'Syne',sans-serif"}}>
                           {task.posGain.min===0&&task.posGain.max===0
-                            ? "—"
+                            ? "-"
                             : task.posGain.min===task.posGain.max
                             ? `+${task.posGain.max}`
                             : `+${task.posGain.min}–${task.posGain.max}`}

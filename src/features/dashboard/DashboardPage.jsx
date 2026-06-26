@@ -7,6 +7,7 @@ import CannibalizationWidget from './components/CannibalizationWidget.jsx'
 import LinkingWidget from './components/LinkingWidget.jsx'
 import MonitorWidget from './components/MonitorWidget.jsx'
 import { X, Globe, ArrowRight, Settings, Zap } from 'lucide-react'
+import FeatureGate from '../../shared/components/FeatureGate.jsx'
 import UpgradeModal from '../../shared/components/UpgradeModal.jsx'
 
 /* ─── inline styles ─── */
@@ -201,12 +202,16 @@ export default function DashboardPage() {
 
         {/* ── Keyword Cannibalization ── */}
         <div style={{ marginBottom: '20px', animation: 'fadeUp .5s .15s ease both' }}>
-          <CannibalizationWidget />
+          <FeatureGate feature="cannibalization" mode="widget" label="Keyword Cannibalization">
+            <CannibalizationWidget />
+          </FeatureGate>
         </div>
 
         {/* ── Internal Linking Opportunities ── */}
         <div style={{ marginBottom: '20px', animation: 'fadeUp .5s .2s ease both' }}>
-          <LinkingWidget audits={history} />
+          <FeatureGate feature="linking" mode="widget" label="Internal Link AI">
+            <LinkingWidget audits={history} />
+          </FeatureGate>
         </div>
 
         {/* ── Competitor Monitor ── */}

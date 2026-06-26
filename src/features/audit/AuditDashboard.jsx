@@ -6,6 +6,7 @@ import { getAudit } from './services/auditService.js'
 import { useAudit } from '../../store/auditSlice.js'
 import { printSeoReport } from '../reports/reportGenerator.js'
 import { api } from '../../shared/services/apiClient.js'
+import { usePlanStore } from '../../store/planSlice.js'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -246,6 +247,7 @@ export default function AuditDashboard() {
   const { id }            = useParams()
   const navigate          = useNavigate()
   const { currentAudit, isLoading, setAudit } = useAudit()
+  const can = usePlanStore(s => s.can)
   const [error,    setError]    = useState('')
   const [abVars,      setAbVars]      = useState([{ title: '', meta_description: '' }, { title: '', meta_description: '' }])
   const [abResults,   setAbResults]   = useState([])
@@ -423,7 +425,7 @@ export default function AuditDashboard() {
               <div className="ad-hc-val">{a.quality}</div>
               <div className="ad-hc-aside">
                 <div className={`ad-hc-pill`}>SEO Score: {a.seoScore}</div>
-                <div className="ad-hc-note">Based on 27 signals</div>
+                <div className="ad-hc-note">Based on {a.signalCount} signals</div>
               </div>
             </div>
             <div className="ad-qual-levels">
@@ -445,8 +447,10 @@ export default function AuditDashboard() {
                 <span className="ad-rank-hash">#</span>{a.predictedRank}
               </div>
               <div className="ad-hc-aside">
-                <div className="ad-hc-pill">ML Confidence: High</div>
-                <div className="ad-hc-note">vs. top-10 competitors</div>
+                <div className="ad-hc-pill">
+                  Confidence: {a.classificationConfidence >= 80 ? 'High' : a.classificationConfidence >= 55 ? 'Medium' : 'Low'} ({a.classificationConfidence}%)
+                </div>
+                <div className="ad-hc-note">{a.rankR2 != null ? `R²=${a.rankR2.toFixed(2)} · ` : ''}on-page signals only</div>
               </div>
             </div>
             <div className="ad-rank-track"><div className="ad-rank-fill" style={{ width:`${rankPct}%` }}/></div>
@@ -529,12 +533,15 @@ export default function AuditDashboard() {
             <div className="ad-tl-sched">
               <span className="ad-tl-sched-lbl">Auto re-audit:</span>
               <div className="ad-tl-freq-row">
-                <button className={`ad-tl-freq${schedule?.frequency === 'weekly' ? ' active' : ''}`} disabled={schedLoading} onClick={() => toggleSchedule('weekly')}>Weekly</button>
-                <button className={`ad-tl-freq${schedule?.frequency === 'monthly' ? ' active' : ''}`} disabled={schedLoading} onClick={() => toggleSchedule('monthly')}>Monthly</button>
-                {schedule && <button className="ad-tl-off" disabled={schedLoading} onClick={() => toggleSchedule(schedule.frequency)}>Off</button>}
+                <button className={`ad-tl-freq${schedule?.frequency === 'weekly' ? ' active' : ''}`} disabled={schedLoading} onClick={can('scheduling') ? () => toggleSchedule('weekly') : () => navigate('/billing')}>Weekly</button>
+                <button className={`ad-tl-freq${schedule?.frequency === 'monthly' ? ' active' : ''}`} disabled={schedLoading} onClick={can('scheduling') ? () => toggleSchedule('monthly') : () => navigate('/billing')}>Monthly</button>
+                {schedule && can('scheduling') && <button className="ad-tl-off" disabled={schedLoading} onClick={() => toggleSchedule(schedule.frequency)}>Off</button>}
+                {!can('scheduling') && <span style={{ fontFamily:"'DM Mono',monospace", fontSize:9, color:'#0d9488', background:'rgba(13,148,136,.08)', border:'1px solid rgba(13,148,136,.2)', borderRadius:5, padding:'2px 8px', cursor:'pointer' }} onClick={() => navigate('/billing')}>Pro</span>}
               </div>
               <span className="ad-tl-note">
-                {schedule ? `Next: ${schedule.next_run_at?.slice(0, 10) || '—'}` : 'Enable to track score over time'}
+                {can('scheduling')
+                  ? (schedule ? `Next: ${schedule.next_run_at?.slice(0, 10) || '-'}` : 'Enable to track score over time')
+                  : 'Upgrade to Pro to enable auto re-auditing'}
               </span>
             </div>
           </div>
@@ -704,7 +711,7 @@ export default function AuditDashboard() {
               <LayoutGrid size={13} strokeWidth={1.8} />
               A/B Title &amp; Meta Scorer
             </div>
-            <span className="ad-badge info">Free- no extra Credit Usage</span>
+            <span className="ad-badge info">No extra credit usage</span>
           </div>
           <div className="ad-ab-body">
             <div className="ad-ab-grid">
@@ -792,8 +799,15 @@ export default function AuditDashboard() {
             <div className="ad-cta-arrow">View Roadmap →</div>
           </div>
 
-          {/* Content Brief CTA */}
-          <div className="ad-cta-card" style={{background:'linear-gradient(135deg,rgba(251,191,36,.1),rgba(217,119,6,.04))',borderColor:'rgba(251,191,36,.28)'}} onClick={handleGenerateBrief}>
+          {/* Content Brief CTA — shows for everyone; Free users are redirected to billing on click */}
+          <div
+            className="ad-cta-card"
+            style={{background:'linear-gradient(135deg,rgba(251,191,36,.1),rgba(217,119,6,.04))',borderColor:'rgba(251,191,36,.28)', position:'relative'}}
+            onClick={can('brief') ? handleGenerateBrief : () => navigate('/billing')}
+          >
+            {!can('brief') && (
+              <span style={{position:'absolute',top:10,right:10,fontFamily:"'DM Mono',monospace",fontSize:9,color:'#0d9488',background:'rgba(13,148,136,.1)',border:'1px solid rgba(13,148,136,.25)',borderRadius:4,padding:'2px 7px'}}>Pro</span>
+            )}
             <div className="ad-cta-icon" style={{background:'rgba(251,191,36,.14)',border:'1px solid rgba(251,191,36,.3)'}}>
               <FileText size={17} strokeWidth={1.8} stroke="#fbbf24" />
             </div>
@@ -802,7 +816,7 @@ export default function AuditDashboard() {
             <div className="ad-cta-arrow" style={{color:'#fbbf24'}}>{briefLoading ? 'Working…' : 'Generate Brief'}</div>
           </div>
 
-          {/* Download Report CTA */}
+          {/* Download Report CTA — fully free, client-side render */}
           <div className="ad-cta-card rose" onClick={handleDownloadReport} id="cta-download-report">
             <div className="ad-cta-icon">
               <Download size={18} strokeWidth={1.8} stroke="#fb7185" />

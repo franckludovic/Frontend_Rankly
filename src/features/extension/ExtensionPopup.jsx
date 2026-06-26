@@ -9,8 +9,11 @@ import IssuesList      from './components/IssuesList'
 import CtaSection      from './components/CtaSection'
 import ScrollIndicator from './components/ScrollIndicator'
 import LimitScreen     from './components/LimitScreen'
+import ExtensionRoadmap  from './components/ExtensionRoadmap'
 import { runLocalInference } from './services/modelService'
 import { printSeoReport } from '../reports/reportGenerator'
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 /* Helper function to check if a URL is running on a local development server or not deployed */
 function isLocalUrl(urlStr) {
@@ -72,19 +75,39 @@ export default function ExtensionPopup() {
   const [onlineCount, setOnlineCount] = useState(0)
   const [limitType, setLimitType] = useState(null) // 'local' | 'cloud' | null
 
+  // Theme: 'dark' | 'light'
+  const [theme, setTheme] = useState('dark')
+
+  // Last audit score for the current domain
+  const [lastScore, setLastScore] = useState(null)
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    try {
+      localStorage.setItem('rankly_theme', next)
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        chrome.storage.sync.set({ ranklyTheme: next })
+      }
+    } catch {}
+  }
+
   // Query counts and the active tab on mount
   useEffect(() => {
     // 1. Get chrome synced counts (fall back to localStorage)
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-      chrome.storage.sync.get(['offlineCount', 'onlineCount'], (res) => {
-        if (res.offlineCount !== undefined) setOfflineCount(res.offlineCount)
+      chrome.storage.sync.get(['offlineCount', 'onlineCount', 'ranklyTheme'], (res) => {
+        if (res.offlineCount  !== undefined) setOfflineCount(res.offlineCount)
+        if (res.ranklyTheme   !== undefined) setTheme(res.ranklyTheme)
         if (res.onlineCount !== undefined) setOnlineCount(res.onlineCount)
       })
     } else {
       const offVal = parseInt(localStorage.getItem('rankly_offline_count') || '0', 10)
-      const onVal = parseInt(localStorage.getItem('rankly_online_count') || '0', 10)
+      const onVal  = parseInt(localStorage.getItem('rankly_online_count')  || '0', 10)
+      const savedTheme = localStorage.getItem('rankly_theme')
       setOfflineCount(offVal)
       setOnlineCount(onVal)
+      if (savedTheme) setTheme(savedTheme)
     }
 
     // 2. Query active tab details
@@ -96,6 +119,20 @@ export default function ExtensionPopup() {
           try {
             const parsed = new URL(tabUrl)
             setUrl(parsed.hostname + parsed.pathname)
+            const d = parsed.hostname
+            // Load last score for this domain
+            if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+              chrome.storage.sync.get(['ranklyLastScores'], (res) => {
+                const scores = res.ranklyLastScores || {}
+                if (scores[d]) setLastScore(scores[d])
+              })
+            } else {
+              try {
+                const raw = localStorage.getItem('ranklyLastScores')
+                const scores = raw ? JSON.parse(raw) : {}
+                if (scores[d]) setLastScore(scores[d])
+              } catch {}
+            }
           } catch (e) {
             setUrl(tabUrl)
           }
@@ -119,6 +156,26 @@ export default function ExtensionPopup() {
       chrome.storage.sync.set({ onlineCount: newVal })
     } else {
       localStorage.setItem('rankly_online_count', newVal)
+    }
+  }
+
+  const saveLastScore = (domain, scoreVal) => {
+    if (!domain) return
+    const entry = { score: scoreVal, date: new Date().toISOString().slice(0, 10) }
+    setLastScore(entry)
+    if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+      chrome.storage.sync.get(['ranklyLastScores'], (res) => {
+        const scores = res.ranklyLastScores || {}
+        scores[domain] = entry
+        chrome.storage.sync.set({ ranklyLastScores: scores })
+      })
+    } else {
+      try {
+        const raw = localStorage.getItem('ranklyLastScores')
+        const scores = raw ? JSON.parse(raw) : {}
+        scores[domain] = entry
+        localStorage.setItem('ranklyLastScores', JSON.stringify(scores))
+      } catch {}
     }
   }
 
@@ -281,12 +338,16 @@ export default function ExtensionPopup() {
       }
     }
 
+    let resolvedDomain = ''
+    try { resolvedDomain = new URL(currentUrl).hostname } catch {}
+
     const handleScrapedData = async (data) => {
       setScrapedData(data)
       if (resolvedMode === 'local') {
         console.log('[ExtensionPopup] Running local offline model pipeline...')
         const prediction = await runLocalInference(data)
         setScore(prediction.score)
+        saveLastScore(resolvedDomain, prediction.score)
         updateOfflineCount(offlineCount + 1)
       } else {
         console.log('[ExtensionPopup] Routing to cloud audit pipeline...')
@@ -299,10 +360,9 @@ export default function ExtensionPopup() {
           const tokenRaw = localStorage.getItem('rankly.token')
           let token = null
           try { token = tokenRaw ? JSON.parse(tokenRaw) : null } catch {}
-          
+
           const idempotencyKey = `ext_${deviceId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-          const apiBaseUrl = 'http://localhost:8000'
-          const result = await fetch(`${apiBaseUrl}/api/extension/audit/online`, {
+          const result = await fetch(`${API_BASE}/api/extension/audit/online`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -330,12 +390,12 @@ export default function ExtensionPopup() {
           const qual = responseJson.prediction?.classification?.quality
           const scoreVal = qual === 'HIGH' ? 85 : qual === 'MEDIUM' ? 60 : 35
           setScore(scoreVal)
+          saveLastScore(resolvedDomain, scoreVal)
           updateOnlineCount(onlineCount + 1)
         } catch (e) {
           console.error('[ExtensionPopup] Cloud audit failed:', e)
-          // Fallback to mock score on network/server error so popup doesn't break
+          // Fallback to a score on error - do NOT charge the quota for a failed request
           setScore(84)
-          updateOnlineCount(onlineCount + 1)
         }
       }
     }
@@ -388,21 +448,24 @@ export default function ExtensionPopup() {
   }
 
   const handleSignUp = () => {
+    const url = 'https://rankly.app/register'
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
-      chrome.tabs.create({ url: 'https://rankly-seo.com/signup' })
+      chrome.tabs.create({ url })
     } else {
-      window.open('https://rankly-seo.com/signup', '_blank')
+      window.open(url, '_blank')
     }
   }
 
   return (
-    <div className="popup">
-      {/* ── Header: visible in Scanning and Results phases, but not on Welcome Screen or Limit Screen ── */}
+    <div className="popup" data-theme={theme}>
+      {/* ── Header: visible in Scanning and Results phases, not on Welcome or Limit ── */}
       {phase !== 'welcome' && phase !== 'limit' && (
-        <PopupHeader 
-          url={url} 
-          showPrint={phase === 'results'} 
-          onPrint={() => printSeoReport(scrapedData, score, keyword)} 
+        <PopupHeader
+          url={url}
+          showPrint={phase === 'results'}
+          onPrint={() => printSeoReport(scrapedData, score, keyword)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       )}
 
@@ -416,6 +479,9 @@ export default function ExtensionPopup() {
           onlineCount={onlineCount}
           onAudit={handlePerformAudit}
           onSignUp={handleSignUp}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          lastScore={lastScore}
         />
       )}
 
@@ -424,6 +490,8 @@ export default function ExtensionPopup() {
         <LimitScreen
           limitType={limitType}
           onBack={() => setPhase('welcome')}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       )}
 
@@ -446,7 +514,18 @@ export default function ExtensionPopup() {
             keyword={keyword}
             auditMode={auditMode}
           />
-          <CtaSection auditMode={auditMode} />
+          <ExtensionRoadmap
+            scrapedData={scrapedData}
+            keyword={keyword}
+            auditMode={auditMode}
+          />
+          <CtaSection
+            auditMode={auditMode}
+            score={score}
+            url={url}
+            keyword={keyword}
+            onNewAudit={() => setPhase('welcome')}
+          />
         </>
       )}
 

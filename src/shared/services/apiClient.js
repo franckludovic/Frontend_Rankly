@@ -99,7 +99,9 @@ async function http(method, path, body) {
       throw quotaError
     }
     const msg = typeof err.detail === 'string' ? err.detail : err.detail?.detail || `HTTP ${res.status}`
-    throw new Error(msg)
+    const error = new Error(msg)
+    if (res.status === 403) error.isAccessDenied = true
+    throw error
   }
   return res.json()
 }

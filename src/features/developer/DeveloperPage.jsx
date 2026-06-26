@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../../shared/services/apiClient.js'
-import { AlertTriangle, Check } from 'lucide-react'
+import { AlertTriangle, Check, Lock, Code2, ArrowRight, Building2, Rocket } from 'lucide-react'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -70,6 +71,19 @@ const css = `
 .dv-code .cm{color:#64748b;}
 .dv-code .cs{color:#86efac;}
 .dv-base-url{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--teal,#2dd4bf);background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;margin-bottom:14px;}
+
+/* paywall */
+.dv-paywall{display:flex;flex-direction:column;align-items:center;text-align:center;padding:56px 24px 72px;animation:fadeUp .4s ease both;}
+.dv-paywall-icon{width:64px;height:64px;border-radius:18px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;color:#818cf8;margin-bottom:20px;}
+.dv-paywall-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:8px;}
+.dv-paywall-sub{font-family:'Outfit',sans-serif;font-size:13.5px;color:var(--muted);max-width:480px;line-height:1.6;margin-bottom:28px;}
+.dv-paywall-cards{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px;}
+.dv-paywall-card{border:1px solid var(--border2);border-radius:12px;padding:18px 20px;background:var(--bg2);text-align:left;min-width:180px;max-width:200px;}
+.dv-paywall-card-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+.dv-paywall-card-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;}
+.dv-paywall-card-note{font-family:'Outfit',sans-serif;font-size:11.5px;color:var(--muted);line-height:1.45;}
+.dv-paywall-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.3);transition:all .2s;}
+.dv-paywall-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,.4);}
 `
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -110,24 +124,26 @@ const ENDPOINTS = [
 ]
 
 function relDate(iso) {
-  if (!iso) return '—'
+  if (!iso) return '-'
   return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })
 }
 
 export default function DeveloperPage() {
-  const [keys,       setKeys]       = useState([])
-  const [loading,    setLoading]    = useState(true)
-  const [name,       setName]       = useState('')
-  const [creating,   setCreating]   = useState(false)
-  const [newKey,     setNewKey]     = useState(null)
-  const [copied,     setCopied]     = useState(false)
-  const [revoking,   setRevoking]   = useState({})
+  const navigate = useNavigate()
+  const [keys,         setKeys]         = useState([])
+  const [loading,      setLoading]      = useState(true)
+  const [accessDenied, setAccessDenied] = useState(false)
+  const [name,         setName]         = useState('')
+  const [creating,     setCreating]     = useState(false)
+  const [newKey,       setNewKey]       = useState(null)
+  const [copied,       setCopied]       = useState(false)
+  const [revoking,     setRevoking]     = useState({})
   const nameRef = useRef(null)
 
   useEffect(() => {
     api.listApiKeys()
       .then(r => setKeys(r.keys || []))
-      .catch(() => {})
+      .catch(e => { if (e.isAccessDenied) setAccessDenied(true) })
       .finally(() => setLoading(false))
   }, [])
 
@@ -162,6 +178,52 @@ export default function DeveloperPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
     })
+  }
+
+  if (!loading && accessDenied) {
+    return (
+      <>
+        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <div className="dv">
+          <div className="dv-paywall">
+            <div className="dv-paywall-icon"><Lock size={28} strokeWidth={1.6} /></div>
+            <div className="dv-paywall-title">API Access Required</div>
+            <div className="dv-paywall-sub">
+              Programmatic API access is available on Agency and Business plans, or as a
+              $9/mo add-on if you're on Pro.
+            </div>
+
+            <div className="dv-paywall-cards">
+              <div className="dv-paywall-card" style={{ borderColor:'rgba(13,148,136,.3)' }}>
+                <div className="dv-paywall-card-name">
+                  <Rocket size={14} strokeWidth={1.8} style={{ color:'#0d9488' }} /> Pro + Add-on
+                </div>
+                <div className="dv-paywall-card-price">$14/mo + $9/mo add-on</div>
+                <div className="dv-paywall-card-note">Already on Pro? Add the Developer Access add-on from the Billing page.</div>
+              </div>
+              <div className="dv-paywall-card" style={{ borderColor:'rgba(129,140,248,.3)' }}>
+                <div className="dv-paywall-card-name">
+                  <Building2 size={14} strokeWidth={1.8} style={{ color:'#818cf8' }} /> Agency
+                </div>
+                <div className="dv-paywall-card-price">$39/mo · included</div>
+                <div className="dv-paywall-card-note">API access included at no extra cost with 500 audits/month.</div>
+              </div>
+              <div className="dv-paywall-card" style={{ borderColor:'rgba(251,191,36,.3)' }}>
+                <div className="dv-paywall-card-name" style={{ color:'#fbbf24' }}>
+                  <Code2 size={14} strokeWidth={1.8} /> Business
+                </div>
+                <div className="dv-paywall-card-price">$99/mo · included</div>
+                <div className="dv-paywall-card-note">Full API access with unlimited audits and white-label reports.</div>
+              </div>
+            </div>
+
+            <button className="dv-paywall-btn" onClick={() => navigate('/billing')}>
+              View Plans <ArrowRight size={15} strokeWidth={2.2} />
+            </button>
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (
