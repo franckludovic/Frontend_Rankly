@@ -14,18 +14,32 @@ export function normalizeAudit(data) {
   // Normalise quality to uppercase — the label encoder may return title-case ('Medium')
   // but all frontend comparisons expect uppercase ('MEDIUM').
   const quality = (prediction.classification?.quality || 'LOW').toUpperCase()
-  const baseScore = quality === 'HIGH' ? 85 : quality === 'MEDIUM' ? 60 : 35
+  // Prefer the model-derived 0–100 SEO score (classifier HIGH-vs-LOW log-odds).
+  // Fall back to the quality+technical heuristic only when the backend didn't send one.
   const techBonus = (onPage.technical_score || 0) * 5
-  const seoScore = Math.min(100, baseScore + techBonus)
+  const heuristicScore = Math.min(100, (quality === 'HIGH' ? 85 : quality === 'MEDIUM' ? 60 : 35) + techBonus)
+  const modelSeoScore = typeof data.seo_score === 'number' ? Math.round(data.seo_score) : null
+  const seoScore = modelSeoScore ?? heuristicScore
+
+  // Real, model-backed score impact per recommendation (services/recommendation_impact.py).
+  // We normalise the per-fix point gains to 0–100 for the impact bars while keeping the
+  // raw predicted point gain (scoreDelta) for the "+X.X pts" label.
+  const deltaOf = (rec) => (typeof rec.score_impact?.score_delta === 'number' ? rec.score_impact.score_delta : null)
+  const hasModelImpact = recommendations.some(r => deltaOf(r) !== null)
+  const maxDelta = Math.max(0.1, ...recommendations.map(r => deltaOf(r) || 0))
 
   // Map recommendations to suggestions format
   // Normalise impact to lowercase consistently so all comparisons use the same case
   const suggestions = recommendations.map((rec, index) => {
     const impact = (rec.impact || 'low').toLowerCase()
+    const scoreDelta = deltaOf(rec)
     return {
       rank: index + 1,
       impact,
-      pct: impact === 'high' ? 92 : impact === 'medium' ? 68 : 35,
+      scoreDelta,
+      competitiveGap: rec.competitive_gap || null,
+      // bar fill: model-relative when available, else the old impact heuristic
+      pct: scoreDelta !== null ? Math.round((scoreDelta / maxDelta) * 100) : (impact === 'high' ? 92 : impact === 'medium' ? 68 : 35),
       fix: rec.issue || rec.title || '',
       why: rec.action || rec.desc || ''
     }
@@ -45,8 +59,11 @@ export function normalizeAudit(data) {
       : 'Technical'
     const effort = ['Title', 'Meta', 'Headings'].includes(rec.category) ? 'Easy' : ['Content', 'Links'].includes(rec.category) ? 'Medium' : 'Hard'
     const time = effort === 'Easy' ? '~10 min' : effort === 'Medium' ? '~30 min' : '2–3 hours'
-    const posGain = priority === 'critical' ? { min: 5, max: 9 } : priority === 'high' ? { min: 4, max: 7 } : priority === 'medium' ? { min: 2, max: 4 } : { min: 0, max: 2 }
-    const impactPct = priority === 'critical' ? 95 : priority === 'high' ? 82 : priority === 'medium' ? 52 : 22
+    const scoreDelta = deltaOf(rec)
+    // Model-backed impact bar (0–100, relative to the strongest fix); heuristic fallback.
+    const impactPct = scoreDelta !== null
+      ? Math.round((scoreDelta / maxDelta) * 100)
+      : (priority === 'critical' ? 95 : priority === 'high' ? 82 : priority === 'medium' ? 52 : 22)
 
     return {
       id: rec.id || `task_${index}`,
@@ -54,7 +71,8 @@ export function normalizeAudit(data) {
       category,
       effort,
       time,
-      posGain,
+      scoreDelta,
+      competitiveGap: rec.competitive_gap || null,
       impactPct,
       title: rec.issue || rec.title || '',
       desc: rec.action || rec.desc || '',
@@ -68,6 +86,9 @@ export function normalizeAudit(data) {
     keyword: data.keyword,
     createdAt: data.created_at,
     seoScore,
+    modelSeoScore,
+    hasModelImpact,
+    explanation: data.explanation || null,
     quality,
     signalCount: prediction.features_used || 51,
     classificationConfidence: Math.round(prediction.classification?.confidence || 0),

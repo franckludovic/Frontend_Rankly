@@ -174,9 +174,15 @@ export default function RoadmapPage() {
   const todo    = tasks.filter(t => t.status === 'todo').length
   const pct     = tasks.length ? Math.round((done / tasks.length) * 100) : 0
 
-  /* potential rank gain = sum of max gains for completed tasks */
-  const potGain = tasks.filter(t => t.status === 'done').reduce((acc, t) => acc + (t.posGain?.max || 0), 0)
-  const projRank = Math.max(1, a.predictedRank - potGain)
+  /* Model-backed SEO-score projection: sum of per-fix predicted point gains.
+     (Rank is intentionally not projected here- the regressor is driven by
+     off-page signals, so on-page fixes barely move predicted position.) */
+  const sumDelta = (list) => list.reduce((acc, t) => acc + (t.scoreDelta || 0), 0)
+  const baseScore     = Math.round(a.seoScore || 0)
+  const scoreGainDone = sumDelta(tasks.filter(t => t.status === 'done'))
+  const scoreGainAll  = sumDelta(tasks)
+  const projScore     = Math.min(100, Math.round(baseScore + scoreGainDone))
+  const maxProjScore  = Math.min(100, Math.round(baseScore + scoreGainAll))
 
   const filtered = useMemo(() => {
     return tasks.filter(t => {
@@ -215,15 +221,17 @@ export default function RoadmapPage() {
         <div className="rp-banner">
           <div className="rp-b-top">
             <div>
-              <div className="rp-b-hl">Predicted Position Journey</div>
+              <div className="rp-b-hl">Predicted SEO Score</div>
               <div className="rp-b-rank-row">
-                <span className="rp-rank-from">#{a.predictedRank}</span>
+                <span className="rp-rank-from">{baseScore}</span>
                 <ArrowRight size={18} strokeWidth={1.5} style={{color:'var(--faint)'}} />
-                <span className="rp-rank-to" style={{ color: projRank <= 10 ? 'var(--green,#34d399)' : projRank <= 30 ? 'var(--teal,#2dd4bf)' : 'var(--indigo,#818cf8)' }}>
-                  #{projRank}
+                <span className="rp-rank-to" style={{ color: projScore >= 70 ? 'var(--green,#34d399)' : projScore >= 40 ? 'var(--teal,#2dd4bf)' : 'var(--indigo,#818cf8)' }}>
+                  {projScore}
                 </span>
               </div>
-              <div className="rp-rank-note">if all tasks completed · estimated gain</div>
+              <div className="rp-rank-note">
+                {scoreGainDone > 0 ? `+${scoreGainDone.toFixed(1)} pts from completed tasks · ` : ''}up to {maxProjScore} if all done
+              </div>
             </div>
             <div className="rp-b-stats">
               <div className="rp-b-stat">
@@ -253,7 +261,7 @@ export default function RoadmapPage() {
           {[
             { lbl:'Total Tasks',   val: tasks.length,    sub:'in your roadmap',     color:'var(--text,rgba(255,255,255,.88))' },
             { lbl:'Quick Wins',    val: tasks.filter(t=>t.effort==='Easy').length, sub:'easy effort', color:'var(--green,#34d399)' },
-            { lbl:'Pos. Gain Est.',val: `+${tasks.reduce((a,t)=>a+(t.posGain?.max||0),0)}`, sub:'positions possible', color:'var(--teal,#2dd4bf)' },
+            { lbl:'Score Gain Est.',val: `+${scoreGainAll.toFixed(1)}`, sub:'points possible', color:'var(--teal,#2dd4bf)' },
             { lbl:'Critical',      val: tasks.filter(t=>t.priority==='critical').length, sub:'high-priority fixes', color:'var(--red,#f87171)' },
           ].map(s => (
             <div key={s.lbl} className="rp-sum">
@@ -344,6 +352,14 @@ export default function RoadmapPage() {
                     <h3 className="rp-task-title">{task.title}</h3>
                   </div>
                   <p className="rp-task-desc">{task.desc}</p>
+                  {task.competitiveGap && (
+                    <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', margin:'0 0 9px', fontFamily:"'DM Mono',monospace", fontSize:10.5, color:'var(--muted)' }}>
+                      <span style={{ color:'var(--teal,#2dd4bf)', textTransform:'uppercase', letterSpacing:'.4px', fontSize:9 }}>vs competitors</span>
+                      <span>{task.competitiveGap.label}: <b style={{ color:'var(--text)' }}>{Number(task.competitiveGap.your_value).toLocaleString()}</b> → <b style={{ color:'var(--teal,#2dd4bf)' }}>{Number(task.competitiveGap.target_value).toLocaleString()}</b></span>
+                      <span style={{ opacity:.7 }}>· their average {Number(task.competitiveGap.competitor_avg).toLocaleString()}</span>
+                      <span style={{ opacity:.7 }}>· ahead of {Math.round(task.competitiveGap.percentile_before)}% → {Math.round(task.competitiveGap.percentile_after)}% of them</span>
+                    </div>
+                  )}
                   <div className="rp-tags">
                     <span className={`rp-tag tag-${task.category.toLowerCase()}`}>{task.category}</span>
                     <span className={`rp-tag tag-${task.effort.toLowerCase()}`}>{task.effort} effort</span>
@@ -356,19 +372,19 @@ export default function RoadmapPage() {
                 {/* Right */}
                 <div className="rp-right">
                   <div>
-                    <div className="rp-impact-lbl">Impact</div>
-                    <div className="rp-impact-val" style={{ color: task.impactPct >= 70 ? 'var(--red,#f87171)' : task.impactPct >= 50 ? 'var(--amber,#fbbf24)' : 'var(--muted,rgba(255,255,255,.4))' }}>
-                      +{task.impactPct}%
+                    <div className="rp-impact-lbl">Score gain</div>
+                    <div className="rp-impact-val" style={{ color: task.impactPct >= 70 ? 'var(--red,#f87171)' : task.impactPct >= 40 ? 'var(--amber,#fbbf24)' : 'var(--muted,rgba(255,255,255,.4))' }}>
+                      {task.scoreDelta != null ? `+${task.scoreDelta.toFixed(1)} pts` : `+${task.impactPct}%`}
                     </div>
                   </div>
                   <div>
                     <div className="rp-bar-mini">
                       <div className="rp-bar-mini-fill" style={{
                         width:`${task.impactPct}%`,
-                        background: task.impactPct >= 70 ? 'linear-gradient(90deg,#ef4444,#f87171)' : task.impactPct >= 50 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'rgba(255,255,255,.2)'
+                        background: task.impactPct >= 70 ? 'linear-gradient(90deg,#ef4444,#f87171)' : task.impactPct >= 40 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'rgba(255,255,255,.2)'
                       }}/>
                     </div>
-                    <div className="rp-effort-note">+{task.posGain?.min}–{task.posGain?.max} positions</div>
+                    <div className="rp-effort-note">{task.scoreDelta != null ? 'predicted score gain' : 'relative impact'}</div>
                   </div>
                 </div>
               </div>

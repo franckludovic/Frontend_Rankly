@@ -462,6 +462,50 @@ export default function AuditDashboard() {
           </div>
         </div>
 
+        {/* ── Why this prediction (SHAP explainability) ── */}
+        {a.explanation?.factors?.length > 0 && (() => {
+          const maxAbs = Math.max(...a.explanation.factors.map(f => Math.abs(f.contribution)), 0.0001)
+          return (
+            <div style={{ background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:13, padding:'18px 20px', marginBottom:18 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, marginBottom:4, flexWrap:'wrap' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+                  <Activity size={14} strokeWidth={1.9} style={{ color:'var(--teal,#2dd4bf)' }} />
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, color:'var(--text)' }}>
+                    What's shaping your <em style={{ fontStyle:'normal', color:'var(--teal,#2dd4bf)' }}>{a.explanation.quality}</em> rating
+                  </span>
+                </div>
+                <span style={{ fontFamily:"'DM Mono',monospace", fontSize:9, letterSpacing:'.5px', textTransform:'uppercase', color:'var(--muted)', border:'1px solid var(--border)', borderRadius:5, padding:'3px 8px' }}>
+                  AI
+                </span>
+              </div>
+              <div style={{ fontFamily:"'Outfit',sans-serif", fontSize:12, color:'var(--muted)', lineHeight:1.5, marginBottom:14 }}>
+                The things helping or holding back your page's rating, strongest first. Green helps you, red holds you back.
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:9 }}>
+                {a.explanation.factors.map((f) => {
+                  const helps = f.direction === 'helps'
+                  const w = Math.round((Math.abs(f.contribution) / maxAbs) * 100)
+                  const color = helps ? 'var(--green,#34d399)' : 'var(--red,#f87171)'
+                  return (
+                    <div key={f.feature} style={{ display:'grid', gridTemplateColumns:'minmax(140px,1.4fr) 2fr auto', alignItems:'center', gap:12 }}>
+                      <span style={{ fontFamily:"'Outfit',sans-serif", fontSize:12.5, color:'var(--text)' }}>
+                        {f.label}
+                        <span style={{ fontFamily:"'DM Mono',monospace", fontSize:10, color:'var(--muted)', marginLeft:6 }}>({f.value})</span>
+                      </span>
+                      <div style={{ height:7, background:'var(--border2,rgba(255,255,255,.1))', borderRadius:4, overflow:'hidden' }}>
+                        <div style={{ width:`${w}%`, height:'100%', borderRadius:4, background:color, opacity:.85 }}/>
+                      </div>
+                      <span style={{ fontFamily:"'DM Mono',monospace", fontSize:11, fontWeight:500, color, minWidth:64, textAlign:'right' }}>
+                        {helps ? '▲ helps' : '▼ hurts'}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* ── Secondary metrics ── */}
         <div className="ad-sec-row">
           {[
@@ -691,11 +735,18 @@ export default function AuditDashboard() {
                   <div className="ad-sugg-body">
                     <div className="ad-sugg-fix">{s.fix}</div>
                     <div className="ad-sugg-why">{s.why}</div>
+                    {s.competitiveGap && (
+                      <div style={{ display:'flex', alignItems:'center', gap:7, flexWrap:'wrap', marginTop:6, fontFamily:"'DM Mono',monospace", fontSize:10.5, color:'var(--muted)' }}>
+                        <span style={{ color:'var(--teal,#2dd4bf)', textTransform:'uppercase', letterSpacing:'.4px', fontSize:9 }}>vs competitors</span>
+                        <span>{s.competitiveGap.label}: <b style={{ color:'var(--text)' }}>{Number(s.competitiveGap.your_value).toLocaleString()}</b> → <b style={{ color:'var(--teal,#2dd4bf)' }}>{Number(s.competitiveGap.target_value).toLocaleString()}</b></span>
+                        <span style={{ opacity:.7 }}>· their average {Number(s.competitiveGap.competitor_avg).toLocaleString()} · ahead of {Math.round(s.competitiveGap.percentile_before)}% → {Math.round(s.competitiveGap.percentile_after)}% of them</span>
+                      </div>
+                    )}
                   </div>
                   <div className="ad-impact-wrap">
-                    <div className="ad-impact-lbl">Impact</div>
+                    <div className="ad-impact-lbl">{s.scoreDelta != null ? 'Score gain' : 'Impact'}</div>
                     <div className={`ad-impact-val ${s.impact === 'high' ? 'ad-impact-high' : 'ad-impact-med'}`}>
-                      +{s.pct}%
+                      {s.scoreDelta != null ? `+${s.scoreDelta.toFixed(1)} pts` : `+${s.pct}%`}
                     </div>
                   </div>
                 </div>
