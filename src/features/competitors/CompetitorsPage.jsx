@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAudit } from '../../store/auditSlice.js'
 import { getAudit } from '../audit/services/auditService.js'
 import { api } from '../../shared/services/apiClient.js'
+import { notify } from '../../store/notificationSlice.js'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, ReferenceLine
@@ -197,8 +198,13 @@ export default function CompetitorsPage() {
   const { currentAudit, isLoading, setAudit } = useAudit()
   const [selComp, setSelComp]      = useState(0)
   const [selMetric, setSelMetric]  = useState(0)
-  const [watchedIds, setWatchedIds] = useState({})   // url → watchId | null
-  const [watchLoading, setWatchLoading] = useState({}) // url → bool
+  const [watchedIds, setWatchedIds] = useState({})   // compKey → watchId | null
+  const [watchLoading, setWatchLoading] = useState({}) // compKey → bool
+
+  // Per-row identity MUST be unique. Keying watch-state by `url` broke when two
+  // competitors shared (or were missing) a url - every row then collapsed onto
+  // the same key and toggled together. Rank is unique per audit, so use it.
+  const compKey = (c) => `r${c.rank}`
 
   useEffect(() => {
     if (!currentAudit || currentAudit.id !== id) {
@@ -211,12 +217,12 @@ export default function CompetitorsPage() {
     Promise.all(
       currentAudit.competitors.map(c =>
         api.checkWatch(c.url, currentAudit.keyword)
-          .then(r => ({ url: c.url, watchId: r.watching ? r.watch?.id : null }))
-          .catch(() => ({ url: c.url, watchId: null }))
+          .then(r => ({ key: compKey(c), watchId: r.watching ? r.watch?.id : null }))
+          .catch(() => ({ key: compKey(c), watchId: null }))
       )
     ).then(results => {
       const map = {}
-      results.forEach(r => { map[r.url] = r.watchId })
+      results.forEach(r => { map[r.key] = r.watchId })
       setWatchedIds(map)
     })
   }, [currentAudit?.id])
@@ -224,12 +230,14 @@ export default function CompetitorsPage() {
   const toggleWatch = useCallback(async (competitor) => {
     const url     = competitor.url
     const keyword = currentAudit.keyword
-    const watchId = watchedIds[url]
-    setWatchLoading(p => ({ ...p, [url]: true }))
+    const key     = compKey(competitor)
+    const watchId = watchedIds[key]
+    setWatchLoading(p => ({ ...p, [key]: true }))
     try {
       if (watchId) {
         await api.removeWatch(watchId)
-        setWatchedIds(p => ({ ...p, [url]: null }))
+        setWatchedIds(p => ({ ...p, [key]: null }))
+        notify.info('Stopped watching', `${competitor.domain} is no longer monitored.`)
       } else {
         const res = await api.addWatch({
           url,
@@ -238,10 +246,13 @@ export default function CompetitorsPage() {
           initial_title:      competitor.title  || null,
           initial_word_count: competitor.wordCount || null,
         })
-        setWatchedIds(p => ({ ...p, [url]: res.watch?.id || true }))
+        setWatchedIds(p => ({ ...p, [key]: res.watch?.id || true }))
+        notify.success('Now watching', `We'll email you if ${competitor.domain} changes.`)
       }
+    } catch (e) {
+      notify.error('Could not update watch', e?.message || 'Please try again.')
     } finally {
-      setWatchLoading(p => ({ ...p, [url]: false }))
+      setWatchLoading(p => ({ ...p, [key]: false }))
     }
   }, [currentAudit, watchedIds])
 
@@ -495,10 +506,11 @@ export default function CompetitorsPage() {
           </div>
           <div className="cp-watch-list">
             {a.competitors.map(c => {
-              const isWatching = !!watchedIds[c.url]
-              const loading    = !!watchLoading[c.url]
+              const key        = compKey(c)
+              const isWatching = !!watchedIds[key]
+              const loading    = !!watchLoading[key]
               return (
-                <div key={c.url} className={`cp-watch-row${isWatching ? ' active' : ''}`}>
+                <div key={key} className={`cp-watch-row${isWatching ? ' active' : ''}`}>
                   <div className="cp-watch-domain">{c.domain}</div>
                   <div className="cp-watch-url">{c.url}</div>
                   <button

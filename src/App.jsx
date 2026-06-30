@@ -4,6 +4,7 @@ import './styles/theme.css'
 import { useTheme } from './styles/theme.js'
 import { restoreSession } from './features/auth/services/authService.js'
 import LoadingSpinner from './shared/components/LoadingSpinner.jsx'
+import NotificationHost from './shared/components/NotificationHost.jsx'
 
 export default function App() {
   const { initTheme } = useTheme()
@@ -21,5 +22,10 @@ export default function App() {
     return <LoadingSpinner fullScreen={true} />
   }
 
-  return <AppRouter />
+  return (
+    <>
+      <AppRouter />
+      <NotificationHost />
+    </>
+  )
 }

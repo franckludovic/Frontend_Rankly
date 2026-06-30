@@ -10,7 +10,11 @@ import { useAuth } from '../../store/authSlice.js'
 import { useAudit } from '../../store/auditSlice.js'
 import { usePlanStore } from '../../store/planSlice.js'
 import { logout } from '../../features/auth/services/authService.js'
+import { notify } from '../../store/notificationSlice.js'
 import '../../styles/theme.css'
+
+// Support inbox for the Help button. Change to your real support address.
+const HELP_EMAIL = 'estavetbiz@gmail.com'
 import { Zap, BarChart2, Users, Map, Clock, LayoutGrid, Code2, HelpCircle, LogOut, Plus, Bell, User, Settings, Menu, Sun, Moon, ChevronRight, Search, CreditCard } from 'lucide-react'
 
 /* ── Icons ── */
@@ -215,6 +219,15 @@ export default function AppShell() {
     navigate('/login', { replace: true })
   }
 
+  const openHelp = () => {
+    const subject = encodeURIComponent('Rankly — Help request')
+    const body = encodeURIComponent(
+      `Hi Rankly team,\n\n(Describe what you need help with)\n\n— ${user?.email || ''}`
+    )
+    window.open(`mailto:${HELP_EMAIL}?subject=${subject}&body=${body}`, '_blank')
+    notify.info('Help is on the way', `Opening an email to ${HELP_EMAIL}. We usually reply within a day.`)
+  }
+
   const initials   = user?.initials || user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'
   const activeId   = auditId || currentAudit?.id
   const hasAudit   = !!currentAudit
@@ -282,7 +295,7 @@ export default function AppShell() {
             </button>
 
             <div className="sb-bottom">
-              <button className="sb-item">{Ic.help} Help</button>
+              <button className="sb-item" onClick={() => { openHelp(); setSbOpen(false) }}>{Ic.help} Help</button>
               <button className="sb-theme-toggle" onClick={toggleTheme}>
                 {isDark ? <Moon size={14} strokeWidth={1.8} /> : <Sun size={14} strokeWidth={1.8} />}
                 <span>{isDark ? 'Dark mode' : 'Light mode'}</span>

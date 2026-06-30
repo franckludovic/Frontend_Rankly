@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../store/authSlice'
+import { notify } from '../../store/notificationSlice.js'
 import { Check, CreditCard, Zap, Building2, Rocket, ArrowRight, ExternalLink, AlertCircle, Code2, Lock } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
@@ -168,9 +169,11 @@ export default function BillingPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Checkout failed')
+      if (!data.url) throw new Error('Checkout did not return a payment link. Please try again.')
       window.location.href = data.url
     } catch (e) {
       setError(e.message)
+      notify.error('Checkout failed', e.message)
       setLoadingPlan('')
     }
   }

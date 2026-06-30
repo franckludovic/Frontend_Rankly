@@ -65,13 +65,13 @@ function buildReportHtml(a) {
   const dateStr   = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })
   const score     = a.seoScore    ?? 0
   const quality   = a.quality     ?? 'LOW'
-  const rank      = a.predictedRank ?? '—'
+  const rank      = a.predictedRank ?? '-'
   const kwCov     = a.keywordCoverage ?? 0
   const techScore = a.technicalScore  ?? 0
   const issuesCt  = a.issuesFound     ?? 0
   const checksCt  = a.checksPassed    ?? 0
-  const kwDensity = typeof a.keywordDensity === 'number' ? a.keywordDensity.toFixed(1) + '%' : '—'
-  const readability = a.readabilityScore ?? '—'
+  const kwDensity = typeof a.keywordDensity === 'number' ? a.keywordDensity.toFixed(1) + '%' : '-'
+  const readability = a.readabilityScore ?? '-'
 
   const suggestions  = (a.suggestions  || []).slice(0, 10)
   const roadmap      = (a.roadmapTasks || []).slice(0, 8)
@@ -89,7 +89,7 @@ function buildReportHtml(a) {
     { name: 'Keyword in H1',       html: badge(a.h1HasKw),                                   detail: a.h1HasKw ? 'Keyword in H1' : 'H1 does not contain target keyword' },
     { name: 'Canonical Tag',       html: warn(!!a.canonical, 'Set', 'Missing'),             detail: a.canonical ? esc(a.canonical) : 'No canonical link declared' },
     { name: 'Schema Markup',       html: warn(a.hasSchema, 'Present', 'Missing'),           detail: a.hasSchema ? 'JSON-LD structured data found' : 'No structured data- rich results blocked' },
-    { name: 'Image Alt Coverage',  html: warn((a.altCoverage ?? 100) >= 80, `${a.altCoverage ?? '—'}%`, `${a.altCoverage ?? '—'}%`), detail: `${a.altCoverage ?? '—'}% of images have alt attributes` },
+    { name: 'Image Alt Coverage',  html: warn((a.altCoverage ?? 100) >= 80, `${a.altCoverage ?? '-'}%`, `${a.altCoverage ?? '-'}%`), detail: `${a.altCoverage ?? '-'}% of images have alt attributes` },
     { name: 'Index Status',        html: warn(a.indexStatus !== 'noindex', 'Indexable', 'Noindex'), detail: a.indexStatus || 'Indexable- visible to search engines' },
   ].map(r => `
     <tr>
@@ -147,12 +147,12 @@ function buildReportHtml(a) {
           ${competitors.map((c, i) => `
           <tr ${i === 0 ? 'class="comp-top"' : ''}>
             <td class="comp-rank">${c.rank || i + 1}</td>
-            <td class="comp-domain">${esc(c.domain || c.url || '—')}</td>
+            <td class="comp-domain">${esc(c.domain || c.url || '-')}</td>
             <td class="comp-val">${(c.wordCount || 0).toLocaleString()}</td>
-            <td class="comp-val">${typeof c.keywordDensity === 'number' ? c.keywordDensity.toFixed(1) + '%' : '—'}</td>
-            <td class="comp-val">${c.technicalScore ?? '—'}/5</td>
+            <td class="comp-val">${typeof c.keywordDensity === 'number' ? c.keywordDensity.toFixed(1) + '%' : '-'}</td>
+            <td class="comp-val">${c.technicalScore ?? '-'}/5</td>
             <td class="comp-val">${c.hasSchema ? '✓' : '✗'}</td>
-            <td class="comp-val">${c.internalLinks ?? '—'}</td>
+            <td class="comp-val">${c.internalLinks ?? '-'}</td>
           </tr>`).join('')}
           <tr class="comp-you">
             <td class="comp-rank">YOU</td>
@@ -161,7 +161,7 @@ function buildReportHtml(a) {
             <td class="comp-val" style="font-weight:700">${kwDensity}</td>
             <td class="comp-val" style="font-weight:700">${techScore}/5</td>
             <td class="comp-val" style="font-weight:700">${a.hasSchema ? '✓' : '✗'}</td>
-            <td class="comp-val" style="font-weight:700">${a.internalLinks ?? '—'}</td>
+            <td class="comp-val" style="font-weight:700">${a.internalLinks ?? '-'}</td>
           </tr>
         </tbody>
       </table>
@@ -657,7 +657,7 @@ function buildReportHtml(a) {
 
   <!-- ── STAT STRIP ── -->
   <div class="stats">
-    <div class="stat"><div class="stat-val">${esc(a.wordCount?.toLocaleString() ?? '—')}</div><div class="stat-lbl">Word Count</div></div>
+    <div class="stat"><div class="stat-val">${esc(a.wordCount?.toLocaleString() ?? '-')}</div><div class="stat-lbl">Word Count</div></div>
     <div class="stat"><div class="stat-val">${esc(kwDensity)}</div><div class="stat-lbl">KW Density</div></div>
     <div class="stat"><div class="stat-val" style="color:${techScore >= 4 ? '#0d9488' : techScore >= 3 ? '#d97706' : '#dc2626'}">${esc(String(techScore))}/5</div><div class="stat-lbl">Tech Score</div></div>
     <div class="stat"><div class="stat-val" style="color:#dc2626">${esc(String(issuesCt))}</div><div class="stat-lbl">Issues</div></div>
@@ -677,14 +677,14 @@ function buildReportHtml(a) {
   <div class="section">
     <div class="sec-title">Content &amp; Structure Metrics</div>
     <div class="metrics-grid">
-      <div class="mc"><div class="mc-lbl">Paragraphs</div><div class="mc-val">${esc(String(a.paragraphs ?? '—'))}</div></div>
-      <div class="mc"><div class="mc-lbl">H2 Headings</div><div class="mc-val">${esc(String(a.h2Count ?? '—'))}</div></div>
-      <div class="mc"><div class="mc-lbl">H3 Headings</div><div class="mc-val">${esc(String(a.h3Count ?? '—'))}</div></div>
-      <div class="mc"><div class="mc-lbl">Internal Links</div><div class="mc-val">${esc(String(a.internalLinks ?? '—'))}</div></div>
-      <div class="mc"><div class="mc-lbl">External Links</div><div class="mc-val">${esc(String(a.externalLinks ?? '—'))}</div></div>
+      <div class="mc"><div class="mc-lbl">Paragraphs</div><div class="mc-val">${esc(String(a.paragraphs ?? '-'))}</div></div>
+      <div class="mc"><div class="mc-lbl">H2 Headings</div><div class="mc-val">${esc(String(a.h2Count ?? '-'))}</div></div>
+      <div class="mc"><div class="mc-lbl">H3 Headings</div><div class="mc-val">${esc(String(a.h3Count ?? '-'))}</div></div>
+      <div class="mc"><div class="mc-lbl">Internal Links</div><div class="mc-val">${esc(String(a.internalLinks ?? '-'))}</div></div>
+      <div class="mc"><div class="mc-lbl">External Links</div><div class="mc-val">${esc(String(a.externalLinks ?? '-'))}</div></div>
       <div class="mc"><div class="mc-lbl">Readability</div><div class="mc-val">${esc(String(readability))}</div></div>
-      <div class="mc"><div class="mc-lbl">Alt Coverage</div><div class="mc-val">${esc(String(a.altCoverage ?? '—'))}%</div></div>
-      <div class="mc"><div class="mc-lbl">Lighthouse SEO</div><div class="mc-val">${esc(String(a.lighthouseScore ?? '—'))}</div></div>
+      <div class="mc"><div class="mc-lbl">Alt Coverage</div><div class="mc-val">${esc(String(a.altCoverage ?? '-'))}%</div></div>
+      <div class="mc"><div class="mc-lbl">Lighthouse SEO</div><div class="mc-val">${esc(String(a.lighthouseScore ?? '-'))}</div></div>
     </div>
   </div>
 

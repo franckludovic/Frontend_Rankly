@@ -7,6 +7,7 @@ import { useAudit } from '../../store/auditSlice.js'
 import { printSeoReport } from '../reports/reportGenerator.js'
 import { api } from '../../shared/services/apiClient.js'
 import { usePlanStore } from '../../store/planSlice.js'
+import { notify } from '../../store/notificationSlice.js'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -300,8 +301,12 @@ export default function AuditDashboard() {
     try {
       const b = await api.generateBrief(currentAudit.id)
       setBrief(b)
+      notify.success('Brief ready', 'Your AI content brief was generated.')
     } catch (e) {
+      // Previously failures were swallowed (console only), so users just saw the
+      // button spin and stop - looking like "no access". Surface the real reason.
       console.error('Brief generation failed:', e)
+      notify.error('Brief generation failed', e?.message || 'The AI service is unavailable. Please try again later.')
     } finally {
       setBriefLoading(false)
     }
@@ -850,7 +855,7 @@ export default function AuditDashboard() {
             <div className="ad-cta-arrow">View Roadmap →</div>
           </div>
 
-          {/* Content Brief CTA — shows for everyone; Free users are redirected to billing on click */}
+          {/* Content Brief CTA - shows for everyone; Free users are redirected to billing on click */}
           <div
             className="ad-cta-card"
             style={{background:'linear-gradient(135deg,rgba(251,191,36,.1),rgba(217,119,6,.04))',borderColor:'rgba(251,191,36,.28)', position:'relative'}}
@@ -867,7 +872,7 @@ export default function AuditDashboard() {
             <div className="ad-cta-arrow" style={{color:'#fbbf24'}}>{briefLoading ? 'Working…' : 'Generate Brief'}</div>
           </div>
 
-          {/* Download Report CTA — fully free, client-side render */}
+          {/* Download Report CTA - fully free, client-side render */}
           <div className="ad-cta-card rose" onClick={handleDownloadReport} id="cta-download-report">
             <div className="ad-cta-icon">
               <Download size={18} strokeWidth={1.8} stroke="#fb7185" />

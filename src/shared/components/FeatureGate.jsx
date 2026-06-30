@@ -60,7 +60,7 @@ export default function FeatureGate({ feature, children, mode = 'page', label })
   const price         = PLAN_PRICE[requiredPlan] || '$14'
 
   if (mode === 'widget') {
-    // Compact inline — just show children with a soft overlay banner
+    // Compact inline - just show children with a soft overlay banner
     return (
       <>
         <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -90,7 +90,7 @@ export default function FeatureGate({ feature, children, mode = 'page', label })
     )
   }
 
-  // mode === "page" — inviting upsell page, not a wall
+  // mode === "page" - inviting upsell page, not a wall
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -108,7 +108,7 @@ export default function FeatureGate({ feature, children, mode = 'page', label })
 
         <div className="fg-page-sub">
           Get more out of your SEO workflow. Upgrade to <strong style={{ color: meta.color }}>{meta.name}</strong> starting
-          at <strong style={{ color: meta.color }}>{price}/mo</strong> and unlock everything below — plus your first
+          at <strong style={{ color: meta.color }}>{price}/mo</strong> and unlock everything below - plus your first
           audit stays free.
         </div>
 
@@ -136,7 +136,7 @@ export default function FeatureGate({ feature, children, mode = 'page', label })
             onClick={() => navigate('/billing')}
           >
             <Zap size={14} fill="white" strokeWidth={0} />
-            Upgrade to {meta.name} — {price}/mo
+            Upgrade to {meta.name} - {price}/mo
           </button>
           <button className="fg-page-link" onClick={() => navigate('/billing')}>
             Compare all plans →

@@ -11,7 +11,7 @@ export function normalizeAudit(data) {
   const recommendations = data.recommendations || []
   const competitors = data.competitors || []
 
-  // Normalise quality to uppercase — the label encoder may return title-case ('Medium')
+  // Normalise quality to uppercase - the label encoder may return title-case ('Medium')
   // but all frontend comparisons expect uppercase ('MEDIUM').
   const quality = (prediction.classification?.quality || 'LOW').toUpperCase()
   // Prefer the model-derived 0–100 SEO score (classifier HIGH-vs-LOW log-odds).

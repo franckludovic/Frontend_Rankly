@@ -9,6 +9,7 @@ import MonitorWidget from './components/MonitorWidget.jsx'
 import { X, Globe, ArrowRight, Settings, Zap } from 'lucide-react'
 import FeatureGate from '../../shared/components/FeatureGate.jsx'
 import UpgradeModal from '../../shared/components/UpgradeModal.jsx'
+import { notify } from '../../store/notificationSlice.js'
 
 /* ─── inline styles ─── */
 const css = `
@@ -114,6 +115,10 @@ export default function DashboardPage() {
     setLoading(true)
     try {
       const audit = await generateAudit({ url: url.trim(), keyword: kw.trim() })
+      notify.success(
+        'Audit complete',
+        `SEO score ${audit.seoScore}/100 for "${audit.keyword}". A copy was emailed to you.`,
+      )
       navigate(`/audit/${audit.id}`)
     } catch (e) {
       if (e.isQuotaError) {
