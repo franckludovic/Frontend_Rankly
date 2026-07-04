@@ -158,6 +158,8 @@ const SAMPLE_AUDIT_DATA = {
   seoScore: 68,
   quality: 'MEDIUM',
   predictedRank: 34,
+  keywordDifficulty: 62,
+  difficultyMargin: 8,
   keywordCoverage: 2,
   technicalScore: 3,
   issuesFound: 3,
@@ -263,6 +265,8 @@ function generateMockAudit(url, keyword) {
     seoScore: score,
     quality: score >= 70 ? 'HIGH' : score >= 50 ? 'MEDIUM' : 'LOW',
     predictedRank: rank,
+    keywordDifficulty: Math.max(5, Math.min(95, 100 - rank + Math.floor(Math.random() * 10 - 5))),
+    difficultyMargin: 8,
     keywordCoverage: Math.floor(Math.random() * 3) + 1,
     technicalScore: Math.floor(Math.random() * 2) + 2,
     issuesFound: Math.floor(Math.random() * 5) + 1,
@@ -380,11 +384,11 @@ async function mockAbScore(auditId, variants) {
       const optM    = meta.length >= 120 && meta.length <= 160
       const signals = [tKw, mKw, optT, optM].filter(Boolean).length
       const quality = signals >= 3 ? 'HIGH' : signals >= 2 ? 'MEDIUM' : 'LOW'
-      const base    = quality === 'HIGH' ? 5 : quality === 'MEDIUM' ? 22 : 45
-      const rank    = base + Math.floor(Math.random() * 10)
+      const base    = quality === 'HIGH' ? 82 : quality === 'MEDIUM' ? 55 : 30
+      const score   = Math.min(100, base + Math.floor(Math.random() * 10))
       return {
         variant: String.fromCharCode(65 + i), title, meta_description: meta,
-        quality, predicted_rank: rank,
+        quality, seo_score: score,
         title_length: title.length, meta_length: meta.length,
         title_has_kw: tKw, meta_has_kw: mKw,
         optimal_title: optT, optimal_meta: optM,
@@ -392,7 +396,7 @@ async function mockAbScore(auditId, variants) {
     })
     .sort((a, b) => {
       const qr = { HIGH: 0, MEDIUM: 1, LOW: 2 }
-      return (qr[a.quality] ?? 2) - (qr[b.quality] ?? 2) || a.predicted_rank - b.predicted_rank
+      return (qr[a.quality] ?? 2) - (qr[b.quality] ?? 2) || b.seo_score - a.seo_score
     })
 
   return { results, keyword: audit.keyword || '' }
@@ -423,7 +427,7 @@ async function mockStartBulkAudit({ keyword, sitemap_url, urls }) {
       job.results.push({
         url: fakeUrls[i] || `https://example.com/page-${i + 1}`,
         audit_id: null, seo_score: score, quality: q,
-        predicted_rank: q === 'HIGH' ? 3 + Math.floor(Math.random() * 10) : q === 'MEDIUM' ? 15 + Math.floor(Math.random() * 20) : 40 + Math.floor(Math.random() * 20),
+        difficulty_score: 30 + Math.floor(Math.random() * 50),
         issues: Math.floor(Math.random() * 8), word_count: 400 + Math.floor(Math.random() * 1200),
         has_schema: Math.random() > 0.6, title_has_kw: Math.random() > 0.3,
       })
@@ -517,7 +521,7 @@ async function mockGetScoreHistory(url, keyword) {
     const any = audits.find(a => a.url === url)
     if (any) {
       return {
-        history: [{ id: any.id, date: (any.createdAt || new Date().toISOString()).slice(0, 10), seo_score: any.seoScore || 60, quality: any.quality || 'MEDIUM', predicted_rank: any.predictedRank || 25 }],
+        history: [{ id: any.id, date: (any.createdAt || new Date().toISOString()).slice(0, 10), seo_score: any.seoScore || 60, quality: any.quality || 'MEDIUM', difficulty_score: any.keywordDifficulty ?? 55 }],
         count: 1,
       }
     }
@@ -526,11 +530,11 @@ async function mockGetScoreHistory(url, keyword) {
 
   return {
     history: matching.map(a => ({
-      id:             a.id,
-      date:           (a.createdAt || new Date().toISOString()).slice(0, 10),
-      seo_score:      a.seoScore || 60,
-      quality:        a.quality || 'MEDIUM',
-      predicted_rank: a.predictedRank || 25,
+      id:               a.id,
+      date:             (a.createdAt || new Date().toISOString()).slice(0, 10),
+      seo_score:        a.seoScore || 60,
+      quality:          a.quality || 'MEDIUM',
+      difficulty_score: a.keywordDifficulty ?? 55,
     })),
     count: matching.length,
   }

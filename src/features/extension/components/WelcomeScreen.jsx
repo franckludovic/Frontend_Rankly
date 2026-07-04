@@ -28,12 +28,11 @@ export default function WelcomeScreen({
 
       {/* ── Brand bar ── */}
       <div className="w-brand">
-        <div className="w-brand-icon">
-          <Zap size={11} fill="white" strokeWidth={0} />
-        </div>
-        <span className="w-brand-name">
-          Rank<span>ly</span>
-        </span>
+        <img 
+          src={theme === 'dark' ? "/images/Rankly_Dark.png" : "/images/Rankly_light.png"} 
+          alt="Rankly Logo" 
+          style={{ height: '18px', width: 'auto', marginRight: '6px' }} 
+        />
         <span className="w-brand-badge">FREE</span>
 
         {/* Theme toggle - pushed to the right */}
@@ -57,7 +56,7 @@ export default function WelcomeScreen({
         <span className="w-headline-accent">content dies.</span>
       </h1>
       <p className="w-sub">
-        Instant audit - 70+ checks, live keyword signals,<br />and ML rank prediction.
+        Instant audit - 70+ checks, live keyword signals,<br />and ML quality grading.
       </p>
 
       {/* ── Current URL chip ── */}

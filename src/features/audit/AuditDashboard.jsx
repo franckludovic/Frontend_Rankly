@@ -396,7 +396,9 @@ export default function AuditDashboard() {
 
   const a = currentAudit
   const qualityLevel = a.quality === 'HIGH' ? 'high' : a.quality === 'MEDIUM' ? 'med' : 'low'
-  const rankPct = Math.max(5, Math.round(((100 - a.predictedRank) / 100) * 100))
+  const difficulty = a.keywordDifficulty ?? 50
+  const diffPct = Math.max(5, Math.min(100, Math.round(difficulty)))
+  const diffBand = difficulty >= 67 ? 'Hard' : difficulty >= 34 ? 'Medium' : 'Easy'
 
   const handleDownloadReport = () => {
     printSeoReport({ ...a, roadmapTasks: a.roadmapTasks || [] })
@@ -446,23 +448,23 @@ export default function AuditDashboard() {
           </div>
 
           <div className="ad-hc ad-hc-rank">
-            <div className="ad-hc-lbl">Predicted Position</div>
+            <div className="ad-hc-lbl">Keyword Difficulty</div>
             <div className="ad-hc-main">
               <div className="ad-hc-val">
-                <span className="ad-rank-hash">#</span>{a.predictedRank}
+                {difficulty}<span className="ad-rank-hash">/100</span>
               </div>
               <div className="ad-hc-aside">
                 <div className="ad-hc-pill">
-                  Confidence: {a.classificationConfidence >= 80 ? 'High' : a.classificationConfidence >= 55 ? 'Medium' : 'Low'} ({a.classificationConfidence}%)
+                  {diffBand}{a.difficultyMargin != null ? ` · approx. ± ${a.difficultyMargin}` : ''}
                 </div>
-                <div className="ad-hc-note">{a.rankR2 != null ? `R²=${a.rankR2.toFixed(2)} · ` : ''}on-page signals only</div>
+                <div className="ad-hc-note">{a.difficultySpearman != null ? `ρ=${a.difficultySpearman.toFixed(2)} · ` : ''}authority needed to reach page 1</div>
               </div>
             </div>
-            <div className="ad-rank-track"><div className="ad-rank-fill" style={{ width:`${rankPct}%` }}/></div>
+            <div className="ad-rank-track"><div className="ad-rank-fill" style={{ width:`${diffPct}%` }}/></div>
             <div className="ad-rank-labels">
-              <span className="ad-rank-lbl">#100</span>
-              <span className="ad-rank-lbl current">#{a.predictedRank}</span>
-              <span className="ad-rank-lbl">#1</span>
+              <span className="ad-rank-lbl">Easy</span>
+              <span className="ad-rank-lbl current">{difficulty}/100</span>
+              <span className="ad-rank-lbl">Hard</span>
             </div>
           </div>
         </div>
@@ -569,7 +571,9 @@ export default function AuditDashboard() {
                             <div className="ad-tl-tt-lbl">{label}</div>
                             <div>Score: <strong>{payload[0].value}</strong></div>
                             <div>Quality: <strong>{payload[0].payload.quality}</strong></div>
-                            <div>Rank: <strong>#{payload[0].payload.predicted_rank}</strong></div>
+                            {payload[0].payload.difficulty_score != null && (
+                              <div>Difficulty: <strong>{payload[0].payload.difficulty_score}/100</strong></div>
+                            )}
                           </div>
                         ) : null
                       }
@@ -817,7 +821,7 @@ export default function AuditDashboard() {
                     <div className="ad-ab-res-hdr">
                       <span className="ad-ab-var">{r.variant}</span>
                       <span className={`ad-badge ${r.quality === 'HIGH' ? 'ok' : r.quality === 'MEDIUM' ? 'warn' : 'crit'}`}>{r.quality}</span>
-                      <span className="ad-ab-rank">#{r.predicted_rank} predicted</span>
+                      <span className="ad-ab-rank">{r.seo_score != null ? `${r.seo_score}/100 score` : `#${r.predicted_rank} predicted`}</span>
                       {i === 0 && <span className="ad-ab-winner">Best</span>}
                     </div>
                     <div className="ad-ab-res-ttl">{r.title}</div>

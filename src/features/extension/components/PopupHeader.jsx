@@ -4,12 +4,11 @@ export default function PopupHeader({ url = 'example.com', showPrint = false, on
   return (
     <div className="popup-hdr">
       <div className="ph-logo">
-        <div className="ph-logo-icon">
-          <Zap size={11} fill="white" strokeWidth={0} />
-        </div>
-        <div className="ph-logo-name">
-          Rank<span>ly</span>
-        </div>
+        <img 
+          src={theme === 'dark' ? "/images/Rankly_Dark.png" : "/images/Rankly_light.png"} 
+          alt="Rankly Logo" 
+          style={{ height: '16px', width: 'auto', display: 'block' }} 
+        />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

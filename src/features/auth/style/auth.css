@@ -1,16 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-/* ── Page shell: never scrolls ── */
+/* ── Page shell: matches landing page background settings ── */
 .auth-page{
   min-height:100vh;
-  background:linear-gradient(160deg,#06091a 0%,#080c22 40%,#060818 100%);
+  background-color:#030a14;
+  background-image:url('../../../assets/background1.png');
+  background-size:cover;
+  background-position:center top;
+  background-attachment:fixed;
   display:flex;
   flex-direction:column;
   font-family:'Outfit',sans-serif;
   color:white;
   position:relative;
   padding:0;
+  overflow:hidden; /* Prevents blurred background scaling from creating scrollbars */
 }
 
 /* ── Noise grain overlay ── */
@@ -21,7 +26,19 @@
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   opacity:.4;
   pointer-events:none;
-  z-index:0;
+  z-index:3; /* Keep grain above everything */
+}
+
+/* ── Backdrop blur filter layer on top of background image ── */
+.auth-page::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(3,10,20,0.5); /* Soft dark overlay matching landing page aesthetics */
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  pointer-events:none;
+  z-index:1;
 }
 
 /* ── Animated orbs ── */
@@ -59,7 +76,7 @@
   gap:180px;
   padding:40px 24px;
   position:relative;
-  z-index:1;
+  z-index:2; /* Sit on top of the blur filter layer */
 }
 
 /* ── Left copy ── */

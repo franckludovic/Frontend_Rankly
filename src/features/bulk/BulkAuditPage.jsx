@@ -93,10 +93,10 @@ const css = `
 `
 
 const SORT_OPTIONS = [
-  { key: 'seo_score',      label: 'Score',   dir: -1 },
-  { key: 'predicted_rank', label: 'Rank',    dir:  1 },
-  { key: 'issues',         label: 'Issues',  dir: -1 },
-  { key: 'quality',        label: 'Quality', dir: -1 },
+  { key: 'seo_score',        label: 'Score',      dir: -1 },
+  { key: 'difficulty_score', label: 'Difficulty', dir:  1 },
+  { key: 'issues',           label: 'Issues',     dir: -1 },
+  { key: 'quality',          label: 'Quality',    dir: -1 },
 ]
 
 const QUALITY_ORDER = { HIGH: 2, MEDIUM: 1, LOW: 0 }
@@ -164,9 +164,9 @@ export default function BulkAuditPage() {
 
   const exportCsv = () => {
     if (!job?.results?.length) return
-    const header = 'URL,SEO Score,Quality,Predicted Rank,Issues,Word Count,Has Schema,Title Has KW'
+    const header = 'URL,SEO Score,Quality,Keyword Difficulty,Issues,Word Count,Has Schema,Title Has KW'
     const rows   = job.results.map(r =>
-      `"${r.url}",${r.seo_score},${r.quality},${r.predicted_rank},${r.issues},${r.word_count},${r.has_schema ? 'Yes' : 'No'},${r.title_has_kw ? 'Yes' : 'No'}`
+      `"${r.url}",${r.seo_score},${r.quality},${r.difficulty_score ?? r.keyword_difficulty ?? ''},${r.issues},${r.word_count},${r.has_schema ? 'Yes' : 'No'},${r.title_has_kw ? 'Yes' : 'No'}`
     )
     const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv' })
     const a    = document.createElement('a')
@@ -286,7 +286,7 @@ export default function BulkAuditPage() {
                   <th className="bk-th">URL</th>
                   <th className="bk-th">Score</th>
                   <th className="bk-th">Quality</th>
-                  <th className="bk-th">Rank</th>
+                  <th className="bk-th">Difficulty</th>
                   <th className="bk-th">Issues</th>
                   <th className="bk-th">Words</th>
                   <th className="bk-th"></th>
@@ -302,7 +302,7 @@ export default function BulkAuditPage() {
                     <td className="bk-td">
                       <span className={`bk-qual ${r.quality === 'HIGH' ? 'q-high' : r.quality === 'MEDIUM' ? 'q-med' : 'q-low'}`}>{r.quality}</span>
                     </td>
-                    <td className="bk-td">#{r.predicted_rank}</td>
+                    <td className="bk-td">{r.difficulty_score != null ? `${r.difficulty_score}/100` : '—'}</td>
                     <td className="bk-td">{r.issues}</td>
                     <td className="bk-td">{r.word_count?.toLocaleString()}</td>
                     <td className="bk-td">

@@ -297,52 +297,6 @@ export default function CompetitorsPage() {
           </div>
         </div>
 
-        {/* SERP Feature Opportunities */}
-        {(a.serpFeatures?.length > 0) && (
-          <div className="cp-sf-section">
-            <div className="cp-shdr">
-              <div className="cp-sbar" style={{ background:'#f59e0b' }}/>
-              <h2 className="cp-stitle">SERP Feature Opportunities</h2>
-              <span className="cp-count" style={{ marginLeft:8 }}>{a.serpFeatures.length} active</span>
-            </div>
-            <div className="cp-sf-intro">
-              Google is showing special features for "<em>{a.keyword}</em>". Each one is an opportunity your page can capture.
-            </div>
-            <div className="cp-sf-grid">
-              {a.serpFeatures.map((sf, i) => {
-                const impact = SF_IMPACT[sf.traffic_impact] || SF_IMPACT.info
-                return (
-                  <div key={i} className="cp-sf-card">
-                    <div className="cp-sf-card-top">
-                      <div className="cp-sf-icon-wrap">
-                        {getSerpIcon(sf.icon)}
-                      </div>
-                      <div style={{ flex:1 }}>
-                        <div className="cp-sf-name">{sf.feature}</div>
-                        <span className="cp-sf-badge" style={{ background:impact.bg, color:impact.color, borderColor:impact.border }}>
-                          {impact.label}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="cp-sf-rec">{sf.recommendation}</div>
-                    {sf.details?.questions?.length > 0 && (
-                      <div className="cp-sf-paa">
-                        <div className="cp-sf-paa-lbl">PAA questions to target</div>
-                        {sf.details.questions.map((q, qi) => (
-                          <div key={qi} className="cp-sf-q">
-                            <span className="cp-sf-q-dot">›</span>
-                            <span>{q}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Bar chart */}
         <div className="cp-chart-card">
           <div className="cp-chart-top">
@@ -402,7 +356,7 @@ export default function CompetitorsPage() {
           <div className="cp-ov" style={{ borderColor:'rgba(99,102,241,.22)',background:'rgba(99,102,241,.05)' }}>
             <div className="cp-ov-lbl">Their Rank</div>
             <div className="cp-ov-val" style={{ color:'var(--indigo,#818cf8)' }}>#{comp.rank}</div>
-            <div className="cp-ov-note">vs. your predicted #{a.predictedRank}</div>
+            <div className="cp-ov-note">keyword difficulty {a.keywordDifficulty ?? 50}/100</div>
           </div>
           <div className="cp-ov" style={{ borderColor:'rgba(245,158,11,.18)',background:'rgba(245,158,11,.03)' }}>
             <div className="cp-ov-lbl">Search Presence</div>
@@ -491,6 +445,52 @@ export default function CompetitorsPage() {
             ))}
           </div>
         </div>
+
+        {/* SERP Feature Opportunities */}
+        {(a.serpFeatures?.length > 0) && (
+          <div className="cp-sf-section">
+            <div className="cp-shdr">
+              <div className="cp-sbar" style={{ background:'#f59e0b' }}/>
+              <h2 className="cp-stitle">SERP Feature Opportunities</h2>
+              <span className="cp-count" style={{ marginLeft:8 }}>{a.serpFeatures.length} active</span>
+            </div>
+            <div className="cp-sf-intro">
+              Google is showing special features for "<em>{a.keyword}</em>". Each one is an opportunity your page can capture.
+            </div>
+            <div className="cp-sf-grid">
+              {a.serpFeatures.map((sf, i) => {
+                const impact = SF_IMPACT[sf.traffic_impact] || SF_IMPACT.info
+                return (
+                  <div key={i} className="cp-sf-card">
+                    <div className="cp-sf-card-top">
+                      <div className="cp-sf-icon-wrap">
+                        {getSerpIcon(sf.icon)}
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div className="cp-sf-name">{sf.feature}</div>
+                        <span className="cp-sf-badge" style={{ background:impact.bg, color:impact.color, borderColor:impact.border }}>
+                          {impact.label}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="cp-sf-rec">{sf.recommendation}</div>
+                    {sf.details?.questions?.length > 0 && (
+                      <div className="cp-sf-paa">
+                        <div className="cp-sf-paa-lbl">PAA questions to target</div>
+                        {sf.details.questions.map((q, qi) => (
+                          <div key={qi} className="cp-sf-q">
+                            <span className="cp-sf-q-dot">›</span>
+                            <span>{q}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Competitor Watch Panel */}
         <div className="cp-watch-panel">

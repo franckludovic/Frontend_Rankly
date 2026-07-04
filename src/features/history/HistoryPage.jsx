@@ -201,7 +201,7 @@ export default function HistoryPage() {
               <div className="hp-th">URL</div>
               <div className="hp-th">Keyword</div>
               <div className="hp-th">Quality</div>
-              <div className="hp-th">Rank Est.</div>
+              <div className="hp-th">Difficulty</div>
               <div className="hp-th">Date</div>
               <div className="hp-th"></div>
             </div>
@@ -210,7 +210,7 @@ export default function HistoryPage() {
                 <div className="hp-url">{audit.url}</div>
                 <div className="hp-kw">{audit.keyword}</div>
                 <div><span className={`hp-badge ${(audit.quality||'LOW').toLowerCase()}`}>{audit.quality}</span></div>
-                <div className="hp-rank">#{audit.predictedRank}</div>
+                <div className="hp-rank">{audit.keywordDifficulty ?? 50}/100</div>
                 <div className="hp-time">{timeAgo(audit.createdAt)}</div>
                 <div>
                   <button className="hp-del-btn" onClick={e => handleDelete(e, audit.id)} title="Delete">

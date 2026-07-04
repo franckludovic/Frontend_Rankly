@@ -22,7 +22,11 @@ export default function AuthPage() {
       {/* ── Topbar ── */}
       <nav className="auth-nav">
         <div className="auth-nav-logo">
-          Rank<span>ly</span>
+          <img 
+            src="/images/Rankly_Dark.png" 
+            alt="Rankly Logo" 
+            style={{ height: '22px', width: 'auto', display: 'block' }} 
+          />
         </div>
       </nav>
 

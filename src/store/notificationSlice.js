@@ -12,15 +12,23 @@ import { create } from 'zustand'
 //
 // The <NotificationHost/> (mounted once in App.jsx) renders the queue and
 // handles the enter/exit animation + auto-dismiss.
+//
+// The bell panel in AppShell reads from `inbox` — a persistent list that
+// accumulates all notifications until manually cleared.
 
 let _id = 0
 
 export const useNotifications = create((set) => ({
   toasts: [],
+  inbox:  [],   // persistent list shown in the right-panel bell drawer
 
   push: ({ type = 'info', title = '', message = '', duration = 3000 } = {}) => {
     const id = ++_id
-    set((s) => ({ toasts: [...s.toasts, { id, type, title, message, duration }] }))
+    const item = { id, type, title, message, duration, ts: Date.now(), read: false }
+    set((s) => ({
+      toasts: [...s.toasts, item],
+      inbox:  [item, ...s.inbox].slice(0, 50),   // cap at 50
+    }))
     return id
   },
 
@@ -28,6 +36,11 @@ export const useNotifications = create((set) => ({
     set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 
   clear: () => set({ toasts: [] }),
+
+  markAllRead: () =>
+    set((s) => ({ inbox: s.inbox.map((n) => ({ ...n, read: true })) })),
+
+  clearInbox: () => set({ inbox: [] }),
 }))
 
 // Imperative helper so non-React code (services, event handlers) can fire toasts.

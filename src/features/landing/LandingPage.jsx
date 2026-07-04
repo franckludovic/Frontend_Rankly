@@ -741,7 +741,13 @@ export default function LandingPage() {
 
       {/* ── NAV ── */}
       <nav className="lp-nav">
-        <a className="lp-logo" href="/">Rank<em>ly</em></a>
+        <a className="lp-logo" href="/">
+          <img 
+            src={theme === 'dark' ? "/images/Rankly_Dark.png" : "/images/Rankly_light.png"} 
+            alt="Rankly Logo" 
+            style={{ height: '24px', width: 'auto', display: 'block' }} 
+          />
+        </a>
         <div className="lp-nav-links">
           <a className="lp-nl" href="#features">Features</a>
           <a className="lp-nl" href="#how">How it works</a>
@@ -791,7 +797,7 @@ export default function LandingPage() {
           <div className="lp-widget" ref={widgetRef} style={{ willChange:'transform', transformStyle:'preserve-3d' }}>
             <div className="lp-w-hdr">
               <span className="lp-w-title">Audit Result</span>
-              <div style={{display:'inline-flex',alignItems:'center',gap:5,background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.3)',borderRadius:8,padding:'4px 10px',fontFamily:"'DM Mono',monospace",fontSize:10,color:'#818cf8',fontWeight:500}}><ArrowUp size={12} strokeWidth={1.8} /> Predicted Rank: #4</div>
+              <div style={{display:'inline-flex',alignItems:'center',gap:5,background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.3)',borderRadius:8,padding:'4px 10px',fontFamily:"'DM Mono',monospace",fontSize:10,color:'#818cf8',fontWeight:500}}><ArrowUp size={12} strokeWidth={1.8} /> Keyword Difficulty: 62/100</div>
             </div>
             <div className="lp-score-row">
               <div className="lp-ring-wrap">
@@ -883,7 +889,7 @@ export default function LandingPage() {
           {[
             { n:'01', cls:'sn-1', title:'Enter your URL + keyword', desc:'Paste any page URL and the keyword you want to rank for. No tracking pixel, no site access- just a URL.' },
             { n:'02', cls:'sn-2', title:'Our model analyses 70+ signals', desc:'Title, meta, headings, content depth, technical factors, and real SERP competitor data- all processed in parallel.' },
-            { n:'03', cls:'sn-3', title:'Get your score + action plan', desc:'SEO score, predicted rank, competitor gaps, schema code, content brief, and a prioritised roadmap- in one dashboard.' },
+            { n:'03', cls:'sn-3', title:'Get your score + action plan', desc:'SEO score, keyword difficulty, competitor gaps, schema code, content brief, and a prioritised roadmap- in one dashboard.' },
           ].map((s, i) => (
             <>
               {i > 0 && (
@@ -978,7 +984,7 @@ export default function LandingPage() {
               cls: 'wc-seo', icon: <CircleDot size={36} strokeWidth={1.4} />, title: 'SEO Professionals',
               role: 'In-house SEO · Consultant', roleColor: '#2dd4bf',
               desc: 'Stop guessing which signal to fix first. Get ML-ranked recommendations and track score improvement week over week.',
-              items: ['Predicted rank probability', 'Priority-ordered action roadmap', 'A/B test title variants before publishing'],
+              items: ['Keyword difficulty score', 'Priority-ordered action roadmap', 'A/B test title variants before publishing'],
               dotColor: '#2dd4bf',
             },
             {

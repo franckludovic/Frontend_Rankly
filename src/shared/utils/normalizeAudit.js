@@ -92,6 +92,19 @@ export function normalizeAudit(data) {
     quality,
     signalCount: prediction.features_used || 51,
     classificationConfidence: Math.round(prediction.classification?.confidence || 0),
+    // ── Keyword difficulty (0–100 regression score) ──
+    // New V7 regressor grades the KEYWORD (how much authority the page-1 winners have),
+    // not the page's rank. Shown as a number with a ± margin.
+    keywordDifficulty: typeof prediction.regression?.difficulty_score === 'number'
+      ? Math.round(prediction.regression.difficulty_score)
+      : (typeof prediction.regression?.predicted_rank === 'number'
+          ? Math.round(Math.max(0, Math.min(100, 100 - prediction.regression.predicted_rank))) // legacy shim
+          : 50),
+    difficultyMargin: typeof prediction.regression?.difficulty_margin === 'number'
+      ? Math.round(prediction.regression.difficulty_margin)
+      : null,
+    difficultySpearman: prediction.regression?.spearman ?? prediction.regression?.rho ?? null,
+    // Legacy fields kept for backward compatibility until every consumer is migrated.
     rankR2: prediction.regression?.r2_score ?? null,
     predictedRank: prediction.regression?.predicted_rank || 50,
     keywordCoverage: (onPage.title_has_kw ? 1 : 0) + (onPage.meta_has_kw ? 1 : 0) + (onPage.h1_has_kw ? 1 : 0) + (onPage.alt_has_kw ? 1 : 0),

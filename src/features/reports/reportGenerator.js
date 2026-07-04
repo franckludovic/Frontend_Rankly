@@ -65,7 +65,8 @@ function buildReportHtml(a) {
   const dateStr   = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })
   const score     = a.seoScore    ?? 0
   const quality   = a.quality     ?? 'LOW'
-  const rank      = a.predictedRank ?? '-'
+  const difficulty = a.keywordDifficulty ?? '-'
+  const diffMargin = a.difficultyMargin != null ? ` ±${a.difficultyMargin}` : ''
   const kwCov     = a.keywordCoverage ?? 0
   const techScore = a.technicalScore  ?? 0
   const issuesCt  = a.issuesFound     ?? 0
@@ -649,7 +650,7 @@ function buildReportHtml(a) {
       <div class="banner-url">${esc(a.url)}</div>
       <div class="banner-pills">
         <span class="pill" style="background:${qualLight(quality)};color:${qualTeal(quality)};border-color:${qualBorder(quality)}">${esc(qualLabel(quality))}</span>
-        <span class="pill" style="background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe">Predicted Rank #${esc(rank)}</span>
+        <span class="pill" style="background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe">Keyword Difficulty ${esc(difficulty)}/100${esc(diffMargin)}</span>
         <span class="pill" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd">KW Coverage ${esc(kwCov)}/5</span>
       </div>
     </div>

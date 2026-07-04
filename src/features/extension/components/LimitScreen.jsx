@@ -27,12 +27,11 @@ export default function LimitScreen({ limitType = 'local', onBack, theme = 'dark
 
       {/* Brand bar */}
       <div className="w-brand" style={{ marginBottom: 'auto' }}>
-        <div className="w-brand-icon">
-          <Zap size={11} fill="white" strokeWidth={0} />
-        </div>
-        <span className="w-brand-name">
-          Rank<span>ly</span>
-        </span>
+        <img 
+          src={theme === 'dark' ? "/images/Rankly_Dark.png" : "/images/Rankly_light.png"} 
+          alt="Rankly Logo" 
+          style={{ height: '18px', width: 'auto', marginRight: '6px' }} 
+        />
         <span className="w-brand-badge" style={{
           background: 'rgba(239,68,68,.15)', color: 'var(--red)',
           border: '1px solid rgba(239,68,68,.25)'
