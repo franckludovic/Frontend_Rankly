@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node -e \"const f=require('fs');const d='node_modules/onnxruntime-web/dist/';const o='public/models/';f.readdirSync(d).filter(x=>x.endsWith('.wasm')).forEach(x=>f.copyFileSync(d+x,o+x))\"",
+    "prebuild": "node -e \"const f=require('fs');const d='node_modules/onnxruntime-web/dist/';const o='public/models/';f.mkdirSync(o,{recursive:true});f.readdirSync(d).filter(x=>x.endsWith('.wasm')).forEach(x=>f.copyFileSync(d+x,o+x))\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
