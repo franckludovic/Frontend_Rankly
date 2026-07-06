@@ -30,7 +30,13 @@ export const usePlanStore = create((set, get) => ({
     const { plan } = get()
     const required = FEATURE_PLAN[feature]
     if (!required) return true
-    return PLAN_RANKS[plan] >= PLAN_RANKS[required]
+    return (PLAN_RANKS[plan] ?? 0) >= (PLAN_RANKS[required] ?? 1)
+  },
+
+  // Developer functionality (REST API keys) = Pro plan + Dev Pack add-on.
+  hasDevAccess: () => {
+    const { plan, devAddon } = get()
+    return (PLAN_RANKS[plan] ?? 0) >= PLAN_RANKS.pro && devAddon === true
   },
 }))
 

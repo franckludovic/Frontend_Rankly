@@ -543,7 +543,7 @@ body > *{position:relative;z-index:1;}
 [data-theme="light"] .comp-no{color:rgba(15,23,42,.15);}
 
 /* ── PRICING ── */
-.lp-pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:48px;}
+.lp-pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px;max-width:960px;margin-left:auto;margin-right:auto;}
 .lp-pc{border-radius:16px;padding:28px 24px;border:1px solid rgba(255,255,255,.08);background:rgba(8,15,30,.9);position:relative;transition:border-color .25s,transform .25s;display:flex;flex-direction:column;}
 .lp-pc:hover{border-color:rgba(255,255,255,.16);transform:translateY(-4px);}
 .lp-pc-pop{border-color:rgba(45,212,191,.3)!important;background:rgba(8,20,28,.95)!important;box-shadow:0 0 0 1px rgba(45,212,191,.1),0 24px 60px rgba(0,0,0,.4);}
@@ -694,23 +694,18 @@ const COMPARISON_ROWS = [
 const PRICING_TIERS = [
   {
     name: 'Free', price: 0, xaf: null, popular: false,
-    desc: 'For solo creators who want to stop flying blind on every publish.',
-    features: ['3 audits / month', '10 SERP competitors per audit', 'SEO score + rank prediction', 'On-page recommendations', 'Schema code generator'],
+    desc: 'Everything you need to audit and fix a page- free, forever.',
+    features: ['5 audits / month', 'SEO score + keyword difficulty', 'Top-10 competitor analysis', 'On-page roadmap + A/B title scorer', 'PDF report export + schema generator', 'Browser extension'],
   },
   {
     name: 'Pro', price: 14, xaf: '8,400', popular: true,
-    desc: 'For SEO pros who run audits every week, not every quarter.',
-    features: ['50 audits / month', 'PDF report export', 'AI content brief', 'A/B title scorer', 'Score timeline (weekly)', 'Competitor change alerts'],
+    desc: 'The heavy machinery- automation, monitoring, and AI content tools.',
+    features: ['50 audits / month', 'Bulk sitemap audits', 'Scheduled automatic audits', 'Competitor change alerts', 'AI content briefs', 'Internal link AI suggestions'],
   },
   {
-    name: 'Agency', price: 39, xaf: '23,400', popular: false,
-    desc: 'For teams billing clients who demand real data, not vague advice.',
-    features: ['500 audits / month', 'Bulk sitemap audit (50 pages)', 'REST API access', 'Keyword cannibalization', 'Internal link suggestions', 'Up to 5 seats'],
-  },
-  {
-    name: 'Business', price: 99, xaf: '59,400', popular: false,
-    desc: 'Unlimited scale, white-label exports, and direct support.',
-    features: ['Unlimited audits', 'Unlimited bulk runs', 'White-label PDF reports', 'Priority support', 'Custom report branding', 'Up to 15 seats'],
+    name: 'Dev Pack', price: 9, xaf: '5,400', popular: false, addon: true,
+    desc: 'Add-on for Pro subscribers who want to build on top of Rankly.',
+    features: ['Requires the Pro plan', 'REST API access', 'Developer API keys', 'Programmatic audits (JSON)', 'Build your own integrations'],
   },
 ]
 
@@ -1080,7 +1075,7 @@ export default function LandingPage() {
                   </>
                 )}
               </div>
-              <div className="lp-pc-period">{tier.price === 0 ? 'forever' : '/month, billed monthly'}</div>
+              <div className="lp-pc-period">{tier.price === 0 ? 'forever' : tier.addon ? '/month, on top of Pro' : '/month, billed monthly'}</div>
               <div className="lp-pc-desc">{tier.desc}</div>
               <div className="lp-pc-list">
                 {tier.features.map((f, j) => (
@@ -1094,7 +1089,7 @@ export default function LandingPage() {
                 className={`lp-pc-btn ${tier.popular ? 'lp-pc-btn-solid' : 'lp-pc-btn-outline'}`}
                 onClick={() => navigate('/register')}
               >
-                {tier.price === 0 ? 'Start free' : 'Get started'}
+                {tier.price === 0 ? 'Start free' : tier.addon ? 'Add to Pro' : 'Get started'}
               </button>
             </div>
           ))}

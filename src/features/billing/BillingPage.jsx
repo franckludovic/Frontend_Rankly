@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../store/authSlice'
 import { notify } from '../../store/notificationSlice.js'
-import { Check, CreditCard, Zap, Building2, Rocket, ArrowRight, ExternalLink, AlertCircle, Code2, Lock } from 'lucide-react'
+import { Check, Zap, Rocket, ArrowRight, ExternalLink, AlertCircle, Code2, Lock } from 'lucide-react'
 
 const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
@@ -11,34 +11,18 @@ const PLANS = [
     id: 'free', name: 'Free', price: 0, xaf: null,
     color: '#94a3b8',
     icon: <Zap size={18} strokeWidth={1.8} />,
-    desc: 'For solo creators getting started.',
+    desc: 'Everything you need to audit and fix a page.',
     limit: 5,
-    features: ['5 audits / month', '10 SERP competitors', 'SEO score + rank prediction', 'On-page recommendations', 'Schema generator'],
+    features: ['5 audits / month', 'SEO score + keyword difficulty', 'Top-10 competitor analysis', 'On-page roadmap + A/B title scorer', 'PDF export + schema generator', 'Browser extension'],
   },
   {
     id: 'pro', name: 'Pro', price: 14, xaf: '8,400',
     color: '#0d9488',
     icon: <Rocket size={18} strokeWidth={1.8} />,
-    desc: 'For SEO pros who run audits every week.',
+    desc: 'Automation, monitoring, and AI content tools.',
     limit: 50,
-    features: ['50 audits / month', 'PDF report export', 'AI content brief', 'A/B title scorer', 'Score timeline', 'Competitor alerts'],
+    features: ['50 audits / month', 'Bulk sitemap audits', 'Scheduled automatic audits', 'Competitor change alerts', 'AI content briefs', 'Internal link AI suggestions'],
     popular: true,
-  },
-  {
-    id: 'agency', name: 'Agency', price: 39, xaf: '23,400',
-    color: '#818cf8',
-    icon: <Building2 size={18} strokeWidth={1.8} />,
-    desc: 'For teams billing clients at scale.',
-    limit: 500,
-    features: ['500 audits / month', 'Bulk sitemap audit', 'REST API access', 'Keyword cannibalization', 'Internal link AI', '5 seats'],
-  },
-  {
-    id: 'business', name: 'Business', price: 99, xaf: '59,400',
-    color: '#fbbf24',
-    icon: <CreditCard size={18} strokeWidth={1.8} />,
-    desc: 'Unlimited scale, white-label reports.',
-    limit: 10000,
-    features: ['Unlimited audits', 'Unlimited bulk runs', 'White-label PDF reports', 'Priority support', '15 seats'],
   },
 ]
 
@@ -63,7 +47,7 @@ const css = `
 .bl-portal-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
 /* Plan grid */
-.bl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.bl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 640px; }
 .bl-card { border-radius: 14px; padding: 24px 20px; border: 1px solid var(--border); background: var(--bg2); display: flex; flex-direction: column; position: relative; transition: border-color .2s, transform .2s; }
 .bl-card:hover { border-color: var(--border2); transform: translateY(-3px); }
 .bl-card.bl-popular { border-color: rgba(13,148,136,.35); box-shadow: 0 0 0 1px rgba(13,148,136,.1); }
@@ -149,7 +133,8 @@ export default function BillingPage() {
 
   const currentPlan = sub?.plan || 'free'
   const hasDevAddon = sub?.dev_addon === true
-  const planMeta    = PLANS.find(p => p.id === currentPlan) || PLANS[0]
+  // Legacy 'agency'/'business' subscriptions are honoured as Pro in the V2 model.
+  const planMeta    = PLANS.find(p => p.id === currentPlan) || (currentPlan && currentPlan !== 'free' ? PLANS[1] : PLANS[0])
   const usedAudits  = usage?.used ?? 0
   const planLimit   = planMeta.limit
   const pct         = Math.min(100, (usedAudits / planLimit) * 100)
