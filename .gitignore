@@ -31,4 +31,5 @@ models/
 *.njsproj
 *.sln
 *.sw?
-
+*.crx
+*.pem
