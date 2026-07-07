@@ -9,7 +9,16 @@ export function normalizeAudit(data) {
   const onPage = data.on_page || {}
   const prediction = data.prediction || {}
   const recommendations = data.recommendations || []
-  const competitors = data.competitors || []
+  const competitors = (Array.isArray(data.competitors) ? data.competitors : [])
+    .map((entry, index) => {
+      const safeEntry = entry && typeof entry === 'object' ? entry : {}
+      return {
+        ...safeEntry,
+        rank: typeof safeEntry.rank === 'number' ? safeEntry.rank : index + 1,
+        domain: safeEntry.domain || `competitor-${index + 1}`,
+        url: safeEntry.url || ''
+      }
+    })
 
   // Normalise quality to uppercase - the label encoder may return title-case ('Medium')
   // but all frontend comparisons expect uppercase ('MEDIUM').
