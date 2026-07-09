@@ -8,7 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, ReferenceLine
 } from 'recharts'
-import { Bell, Check, X, HelpCircle, CircleDot, Layers, Play, FileText, MapPin, Tag, Globe, Search } from 'lucide-react'
+import { Bell, Check, X, HelpCircle, CircleDot, Layers, Play, FileText, MapPin, Tag, Globe, Search, Users } from 'lucide-react'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -266,6 +266,39 @@ export default function CompetitorsPage() {
   }
 
   const a    = currentAudit
+
+  // No competitors were captured for this audit (SERP scrape returned nothing,
+  // or the keyword has no page-1 results we could analyse). Render a friendly
+  // empty state instead of crashing on `comp.rank` below.
+  if (!a.competitors?.length) {
+    return (
+      <>
+        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <div className="cp">
+          <div className="cp-hdr">
+            <div className="cp-eyebrow"><span className="cp-eyebrow-txt">Competitor Benchmarking</span></div>
+            <h1 className="cp-title">Competing for <em>{a.keyword}</em></h1>
+            <div className="cp-meta">
+              <div className="cp-chip"><Search size={11} strokeWidth={1.8} style={{opacity:.5}} /><span><b>{a.keyword}</b></span></div>
+              <div className="cp-chip"><Globe size={11} strokeWidth={1.8} style={{opacity:.5}} /><span><b>{a.url}</b></span></div>
+            </div>
+          </div>
+          <div className="cp-chart-card" style={{ textAlign:'center', padding:'52px 24px' }}>
+            <div style={{ display:'inline-flex', width:52, height:52, borderRadius:14, alignItems:'center', justifyContent:'center', background:'rgba(255,255,255,.04)', border:'1px solid var(--border)', marginBottom:16 }}>
+              <Users size={24} strokeWidth={1.6} color="var(--muted)" />
+            </div>
+            <div className="cp-chart-title" style={{ marginBottom:8 }}>No competitor data for this keyword</div>
+            <div className="cp-sf-intro" style={{ maxWidth:420, margin:'0 auto' }}>
+              We couldn't capture any page-1 competitors for "<em>{a.keyword}</em>" this time. This can happen for very
+              niche or brand-new keywords, or if the search scrape was rate-limited. Try running the audit again, or
+              pick a broader keyword.
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
   const comp = a.competitors[selComp]
   const m    = METRICS[selMetric]
 

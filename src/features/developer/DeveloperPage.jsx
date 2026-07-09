@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../shared/services/apiClient.js'
-import { AlertTriangle, Check, Lock, Code2, ArrowRight, Building2, Rocket } from 'lucide-react'
+import { usePlanStore } from '../../store/planSlice.js'
+import { AlertTriangle, Check, Lock, Code2, ArrowRight, Rocket } from 'lucide-react'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -130,6 +131,7 @@ function relDate(iso) {
 
 export default function DeveloperPage() {
   const navigate = useNavigate()
+  const plan     = usePlanStore(s => s.plan)
   const [keys,         setKeys]         = useState([])
   const [loading,      setLoading]      = useState(true)
   const [accessDenied, setAccessDenied] = useState(false)
@@ -180,7 +182,26 @@ export default function DeveloperPage() {
     })
   }
 
-  if (!loading && accessDenied) {
+  // While we're still confirming access, render a neutral spinner — NOT the
+  // real key-management UI. Otherwise a non-entitled user briefly sees the
+  // full API page before the 403 flips us to the paywall.
+  if (loading) {
+    return (
+      <>
+        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <div className="dv">
+          <div style={{ display:'flex', justifyContent:'center', alignItems:'center', minHeight:'55vh' }}>
+            <div style={{ width:34, height:34, border:'3px solid var(--border,rgba(255,255,255,.1))', borderTopColor:'var(--teal,#2dd4bf)', borderRadius:'50%', animation:'spin 1s linear infinite' }} />
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (accessDenied) {
+    // V2 pricing: Free / Pro + optional $9/mo Developer Access add-on. No more
+    // Agency/Business tiers — API access is the add-on, purchasable on Pro.
+    const isPro = plan === 'pro' || plan === 'agency' || plan === 'business'
     return (
       <>
         <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -189,36 +210,31 @@ export default function DeveloperPage() {
             <div className="dv-paywall-icon"><Lock size={28} strokeWidth={1.6} /></div>
             <div className="dv-paywall-title">API Access Required</div>
             <div className="dv-paywall-sub">
-              Programmatic API access is available on Agency and Business plans, or as a
-              $9/mo add-on if you're on Pro.
+              Programmatic API access is the <strong>Developer Access</strong> add-on — $9/mo on top of the Pro plan.
+              {isPro
+                ? ' You\'re on Pro, so just add it from the Billing page to start generating API keys.'
+                : ' Upgrade to Pro first, then add Developer Access.'}
             </div>
 
             <div className="dv-paywall-cards">
               <div className="dv-paywall-card" style={{ borderColor:'rgba(13,148,136,.3)' }}>
                 <div className="dv-paywall-card-name">
-                  <Rocket size={14} strokeWidth={1.8} style={{ color:'#0d9488' }} /> Pro + Add-on
+                  <Rocket size={14} strokeWidth={1.8} style={{ color:'#0d9488' }} /> Pro
                 </div>
-                <div className="dv-paywall-card-price">$14/mo + $9/mo add-on</div>
-                <div className="dv-paywall-card-note">Already on Pro? Add the Developer Access add-on from the Billing page.</div>
+                <div className="dv-paywall-card-price">$14/mo · 50 audits</div>
+                <div className="dv-paywall-card-note">Bulk audits, scheduling, monitoring, AI briefs & internal-link AI.</div>
               </div>
               <div className="dv-paywall-card" style={{ borderColor:'rgba(129,140,248,.3)' }}>
-                <div className="dv-paywall-card-name">
-                  <Building2 size={14} strokeWidth={1.8} style={{ color:'#818cf8' }} /> Agency
+                <div className="dv-paywall-card-name" style={{ color:'#818cf8' }}>
+                  <Code2 size={14} strokeWidth={1.8} /> Developer Access
                 </div>
-                <div className="dv-paywall-card-price">$39/mo · included</div>
-                <div className="dv-paywall-card-note">API access included at no extra cost with 500 audits/month.</div>
-              </div>
-              <div className="dv-paywall-card" style={{ borderColor:'rgba(251,191,36,.3)' }}>
-                <div className="dv-paywall-card-name" style={{ color:'#fbbf24' }}>
-                  <Code2 size={14} strokeWidth={1.8} /> Business
-                </div>
-                <div className="dv-paywall-card-price">$99/mo · included</div>
-                <div className="dv-paywall-card-note">Full API access with unlimited audits and white-label reports.</div>
+                <div className="dv-paywall-card-price">+ $9/mo add-on</div>
+                <div className="dv-paywall-card-note">REST API keys, Bearer-token auth on every endpoint, full OpenAPI docs.</div>
               </div>
             </div>
 
             <button className="dv-paywall-btn" onClick={() => navigate('/billing')}>
-              View Plans <ArrowRight size={15} strokeWidth={2.2} />
+              {isPro ? 'Add Developer Access' : 'View Plans'} <ArrowRight size={15} strokeWidth={2.2} />
             </button>
           </div>
         </div>

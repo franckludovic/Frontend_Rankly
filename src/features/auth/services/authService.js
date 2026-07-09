@@ -62,9 +62,11 @@ export async function register({ email, password, firstName, lastName }) {
 
 export async function logout() {
   await supabase.auth.signOut()
-  
+
   localStorage.removeItem('rankly.token')
   localStorage.removeItem('rankly.currentUser')
+  // Reset the one-time welcome flag so the next login greets the user again.
+  localStorage.removeItem('rankly.welcomed')
 
   useAuthStore.getState().logout()
 }
@@ -96,6 +98,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     localStorage.removeItem('rankly.token')
     localStorage.removeItem('rankly.currentUser')
+    localStorage.removeItem('rankly.welcomed')
     useAuthStore.getState().logout()
   } else if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
     const user = {

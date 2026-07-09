@@ -336,10 +336,6 @@ const PAGE_LABELS = {
   '/history':                    { crumb: 'Audit History', section: null },
 }
 
-// Module-level flag: prevents React 18 StrictMode double-mount from
-// pushing the welcome notification twice.
-let _welcomeSeeded = false
-
 export default function AppShell() {
   const { setTheme }            = useTheme()
   const { user, token }         = useAuth()
@@ -363,20 +359,24 @@ export default function AppShell() {
   const clearInbox  = useNotifications((s) => s.clearInbox)
   const unreadCount = inbox.filter((n) => !n.read).length
 
-  // Seed a welcome notification once — module-level flag prevents
-  // React 18 StrictMode double-mount from firing this twice.
+  // Seed a welcome notification once PER LOGIN. The `rankly.welcomed`
+  // localStorage flag survives page reloads — the notification store is
+  // in-memory and resets on every reload, which is why the greeting used to
+  // reappear on every refresh. The flag is cleared on logout
+  // (authService.logout), so the next login greets again. React 18 StrictMode
+  // runs this effect twice, but the second run reads the flag already set by
+  // the first, so the greeting still fires only once.
   useEffect(() => {
-    if (!_welcomeSeeded) {
-      _welcomeSeeded = true
-      if (useNotifications.getState().inbox.length === 0) {
-        useNotifications.getState().push({
-          type: 'info',
-          title: 'Welcome to Rankly 👋',
-          message: 'Your AI-powered SEO workspace is ready. Run an audit to get started.',
-          duration: 4000,
-        })
-      }
-    }
+    try {
+      if (localStorage.getItem('rankly.welcomed') === '1') return
+      localStorage.setItem('rankly.welcomed', '1')
+    } catch { /* storage unavailable — fall through and greet this session */ }
+    useNotifications.getState().push({
+      type: 'info',
+      title: 'Welcome to Rankly 👋',
+      message: 'Your AI-powered SEO workspace is ready. Run an audit to get started.',
+      duration: 4000,
+    })
   }, [])
 
   useEffect(() => {

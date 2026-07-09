@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../store/authSlice'
 import { notify } from '../../store/notificationSlice.js'
+import { api } from '../../shared/services/apiClient.js'
 import { Check, Zap, Rocket, ArrowRight, ExternalLink, AlertCircle, Code2, Lock } from 'lucide-react'
-
-const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 const PLANS = [
   {
@@ -103,7 +102,7 @@ const css = `
 `
 
 export default function BillingPage() {
-  const { token, user } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   const [sub,       setSub]       = useState(null)
@@ -115,21 +114,18 @@ export default function BillingPage() {
 
   useEffect(() => {
     async function load() {
-      try {
-        const [subRes, usageRes] = await Promise.all([
-          fetch(`${API}/api/billing/subscription`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${API}/api/usage/quota`,           { headers: { Authorization: `Bearer ${token}` } }),
-        ])
-        if (subRes.ok)   setSub(await subRes.json())
-        if (usageRes.ok) setUsage(await usageRes.json())
-      } catch {
-        // non-fatal- page still renders with defaults
-      } finally {
-        setLoading(false)
-      }
+      // api.* uses a fresh Supabase token (auto-refreshed) and bypasses the
+      // HTTP cache, so the audit-usage count always reflects the latest audits.
+      const [subRes, usageRes] = await Promise.allSettled([
+        api.getSubscription(),
+        api.getQuota(),
+      ])
+      if (subRes.status === 'fulfilled')   setSub(subRes.value)
+      if (usageRes.status === 'fulfilled') setUsage(usageRes.value)
+      setLoading(false)
     }
     load()
-  }, [token])
+  }, [])
 
   const currentPlan = sub?.plan || 'free'
   const hasDevAddon = sub?.dev_addon === true
@@ -147,13 +143,7 @@ export default function BillingPage() {
     setError('')
     setLoadingPlan(planId)
     try {
-      const res = await fetch(`${API}/api/billing/checkout`, {
-        method:  'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ plan: planId, email: user?.email || '' }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Checkout failed')
+      const data = await api.billingCheckout({ plan: planId, email: user?.email || '' })
       if (!data.url) throw new Error('Checkout did not return a payment link. Please try again.')
       window.location.href = data.url
     } catch (e) {
@@ -167,11 +157,7 @@ export default function BillingPage() {
     setError('')
     setPortalLoading(true)
     try {
-      const res = await fetch(`${API}/api/billing/portal`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Portal unavailable')
+      const data = await api.billingPortal()
       window.location.href = data.url
     } catch (e) {
       setError(e.message)

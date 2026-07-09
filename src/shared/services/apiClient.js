@@ -58,6 +58,9 @@ async function http(method, path, body) {
   const token = await getFreshToken()
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
+    // Never serve authenticated API responses from the browser HTTP cache -
+    // e.g. usage/quota must reflect the latest audit count, not a stale copy.
+    cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -74,6 +77,7 @@ async function http(method, path, body) {
           // Retry the original request with the new token
           const retry = await fetch(`${BASE_URL}${path}`, {
             method,
+            cache: 'no-store',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${session.access_token}`,
@@ -705,6 +709,19 @@ export const api = {
   checkWatch:    USE_MOCK ? mockCheckWatch   : (url, kw) => http('GET', `/api/competitors/watch/check?url=${encodeURIComponent(url)}&keyword=${encodeURIComponent(kw)}`),
   addWatch:      USE_MOCK ? mockAddWatch     : (body)    => http('POST', '/api/competitors/watch', body),
   removeWatch:   USE_MOCK ? mockRemoveWatch  : (id)      => http('DELETE', `/api/competitors/watch/${id}`),
+
+  /* --- Billing & Usage --- */
+  // Routed through http() so they always use a FRESH Supabase token (auto-refreshed).
+  // The Billing page previously used raw fetch() with the stale Zustand token, which
+  // 401'd after the hourly token refresh and left the audit-usage count stuck at 0.
+  getSubscription: USE_MOCK ? async () => ({ plan: 'free', dev_addon: false, status: 'active' })
+                            : () => http('GET', '/api/billing/subscription'),
+  getQuota:        USE_MOCK ? async () => ({ plan: 'free', used: 0, limit: 5, remaining: 5 })
+                            : () => http('GET', '/api/usage/quota'),
+  billingCheckout: USE_MOCK ? async () => ({ url: '' })
+                            : (body) => http('POST', '/api/billing/checkout', body),
+  billingPortal:   USE_MOCK ? async () => ({ url: '' })
+                            : () => http('GET', '/api/billing/portal'),
 
   /* --- Roadmap --- */
   updateTaskStatus: USE_MOCK
