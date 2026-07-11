@@ -201,7 +201,7 @@ export default function DashboardPage() {
             }
           </button>
           <p className="dp-hint">
-            Avg. analysis time: 2–3s · Top 10 SERP competitors benchmarked · Try: "buy cheap laptops"
+            Avg. analysis time: 30–90s · Top 10 SERP competitors benchmarked · Try: "buy cheap laptops"
           </p>
         </div>
 

@@ -93,7 +93,7 @@ export default function RegisterForm() {
         <TextField
           label="First Name"
           size="sm"
-          placeholder="Ada"
+          placeholder="Name"
           value={first}
           onChange={e => {
             setFirst(e.target.value)
@@ -106,7 +106,7 @@ export default function RegisterForm() {
         <TextField
           label="Last Name"
           size="sm"
-          placeholder="Lovelace"
+          placeholder="Last name"
           value={last}
           onChange={e => {
             setLast(e.target.value)
